@@ -4491,7 +4491,7 @@ QTK8RleIFBMrxGV4oCgmV4oJrxAoJleKGVnAFBMrxDx4oCcw+Qz5klyfID//2Q==" alt="logo"/>
       <div class="stat"><div class="stat-lbl">Tổng quỹ</div><div class="stat-val" id="d-fund">—</div></div>
       <div class="stat"><div class="stat-lbl">Đã chi / cọc</div><div class="stat-val rose" id="d-spent">—</div></div>
       <div class="stat"><div class="stat-lbl">Còn phải trả</div><div class="stat-val amber" id="d-remain">—</div></div>
-      <div class="stat"><div class="stat-lbl">Quỹ còn lại</div><div class="stat-val sage" id="d-left">—</div></div>
+      <div class="stat"><div class="stat-lbl">Tổng chi tiêu</div><div class="stat-val" id="d-left" style="color:#a0d0ff">—</div></div>
     </div>
     <div class="card">
       <div class="card-head"><span class="card-title">Tiến trình tổng thể</span><span class="card-meta" id="d-overall">0%</span></div>
@@ -5117,7 +5117,7 @@ const updateDash=()=>{
   const left=totalFund-totalCost;
   const payPct=totalCost>0?Math.round(spent/totalCost*100):0;
   $('d-fund').textContent=fmt(totalFund);$('d-spent').textContent=fmt(spent);
-  $('d-remain').textContent=fmt(needPay>0?needPay:0);$('d-left').textContent=fmt(left);
+  $('d-remain').textContent=fmt(needPay>0?needPay:0);$('d-left').textContent=fmt(totalCost);
   const clItems=getCLItems(),clDone=clItems.filter(i=>i.done).length;
   const clPct=clItems.length>0?Math.round(clDone/clItems.length*100):0;
   const guests=Object.values(DATA.gift_guests);
