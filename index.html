@@ -1306,6 +1306,19 @@ body{
 .toast.show{opacity:1}
 @media(min-width:681px){.toast{bottom:24px}}
 /* ── MOBILE NAV ── */
+.mob-header{display:none;background:var(--bg1);border-bottom:1px solid var(--border);padding:10px 16px 10px;padding-top:calc(10px + env(safe-area-inset-top));align-items:center;justify-content:space-between;gap:12px;flex-shrink:0}
+.mob-header-left{display:flex;align-items:center;gap:10px;min-width:0}
+.mob-header-logo{width:36px;height:36px;border-radius:9px;object-fit:cover;flex-shrink:0}
+.mob-header-info{min-width:0}
+.mob-header-name{font-size:15px;font-weight:700;color:var(--text1);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.mob-header-date{font-size:11px;color:var(--text3);margin-top:1px}
+.mob-header-cd{background:linear-gradient(135deg,var(--green3),#142e18);border:1px solid var(--green2);border-radius:10px;padding:6px 12px;text-align:center;flex-shrink:0}
+.mob-header-num{font-size:20px;font-weight:700;color:var(--green);line-height:1}
+.mob-header-lbl{font-size:9px;color:var(--text3);font-weight:500;letter-spacing:.4px;text-transform:uppercase;margin-top:1px}
+.mob-de-bar{display:none;background:var(--bg2);border-bottom:1px solid var(--border);padding:12px 16px;gap:8px;flex-direction:column}
+.mob-de-bar input{font-size:13px;padding:8px 10px;border:1px solid var(--border);border-radius:8px;background:var(--bg3);color:var(--text1);font-family:'Outfit',sans-serif;outline:none;width:100%}
+.mob-de-bar input::placeholder{color:var(--text3)}
+.mob-de-bar input:focus{border-color:var(--green2)}
 .mob-nav{display:none;background:var(--bg1);border-top:1px solid var(--border);position:fixed;bottom:0;left:0;right:0;z-index:100;padding-bottom:env(safe-area-inset-bottom)}
 .mob-items{display:flex;max-width:500px;margin:0 auto}
 .mn-i{flex:1;display:flex;flex-direction:column;align-items:center;padding:8px 4px 9px;cursor:pointer;color:var(--text3);font-size:9px;font-weight:500;border:none;background:none;font-family:'Outfit',sans-serif;gap:3px;min-height:52px;justify-content:center}
@@ -1314,8 +1327,11 @@ body{
 .mn-i.on svg{transform:scale(1.1)}
 @media(max-width:680px){
   .sidebar{display:none}
+  .mob-header{display:flex}
+  .mob-de-bar.show{display:flex}
   .mob-nav{display:block}
   .main{padding:16px 16px calc(72px + env(safe-area-inset-bottom))}
+  body{padding-top:0}
 }
 </style>
 </head>
@@ -3410,7 +3426,38 @@ QTK8RleIFBMrxGV4oCgmV4oJrxAoJleKGVnAFBMrxDx4oCcw+Qz5klyfID//2Q==" alt="logo"/></
 </div>
 <!-- APP -->
 <div id="app-screen">
-<div class="app-layout">
+<div class="app-layout" style="flex-direction:column">
+<!-- MOBILE TOP HEADER -->
+<div class="mob-header" id="mob-header">
+  <div class="mob-header-left">
+    <img class="mob-header-logo" id="mob-logo" src="" alt="logo"/>
+    <div class="mob-header-info">
+      <div style="display:flex;align-items:center;gap:6px">
+        <div class="mob-header-name" id="mob-name">Wedding Planner</div>
+        <button id="mob-edit-btn" onclick="toggleMobDE()" style="display:none;background:none;border:none;cursor:pointer;padding:2px;opacity:.5;line-height:1">
+          <svg width="13" height="13" viewBox="0 0 13 13" fill="none"><path d="M9.5 1.5L11.5 3.5L4 11H2V9L9.5 1.5Z" stroke="#9ab09a" stroke-width="1.3" stroke-linejoin="round"/></svg>
+        </button>
+      </div>
+      <div class="mob-header-date" id="mob-date">—</div>
+    </div>
+  </div>
+  <div class="mob-header-cd">
+    <div class="mob-header-num" id="mob-cnt">—</div>
+    <div class="mob-header-lbl">ngày nữa</div>
+  </div>
+</div>
+<!-- MOBILE DATE EDIT PANEL -->
+<div class="mob-de-bar" id="mob-de-bar">
+  <div style="font-size:12px;font-weight:600;color:var(--green);margin-bottom:8px">Sửa thông tin đám cưới</div>
+  <input type="date" id="mob-de-date" style="color-scheme:dark"/>
+  <input id="mob-de-name" placeholder="Tên cặp đôi (vd: Khanh & Tú)"/>
+  <div style="display:flex;gap:6px">
+    <button class="de-save" onclick="saveMobDE()">Lưu</button>
+    <button class="de-cancel" onclick="toggleMobDE()">Huỷ</button>
+  </div>
+</div>
+<!-- SIDEBAR + MAIN ROW -->
+<div style="display:flex;flex:1;overflow:hidden;min-height:0">
 <div class="sidebar">
   <div class="sb-top">
     <div class="sb-logo">
@@ -4567,6 +4614,7 @@ QTK8RleIFBMrxGV4oCgmV4oJrxAoJleKGVnAFBMrxDx4oCcw+Qz5klyfID//2Q==" alt="logo"/>
     <button class="btn-dashed admin-only" onclick="openModal('contact')" style="display:none">+ Thêm nhà cung cấp</button>
   </div>
 </div><!-- /main -->
+</div><!-- /sidebar+main row -->
 </div><!-- /app-layout -->
 
 <!-- MOBILE NAV -->
@@ -4673,8 +4721,13 @@ window.doLogout=()=>{role=null;showLoginScreen();};
 const enterApp=()=>{
   $('login-screen').style.display='none';
   $('app-screen').classList.add('on');
+  // Sync mob-logo src from sidebar logo
+  const sbLogo=document.querySelector('.sb-logo img');
+  const mobLogo=$('mob-logo');
+  if(sbLogo&&mobLogo)mobLogo.src=sbLogo.src;
   const admin=isAdmin();
   $('sb-edit-btn').style.display=admin?'flex':'none';
+  const meb=$('mob-edit-btn');if(meb)meb.style.display=admin?'flex':'none';
   $('ro-banner').style.display=admin?'none':'flex';
   $('role-badge').textContent=admin?'✏️ Admin':'👁 Chỉ đọc';
   $('role-badge').className='role-badge '+(admin?'rb-admin':'rb-ro');
@@ -4758,11 +4811,28 @@ const renderWeddingInfo=()=>{
   $('sb-name').textContent=name+' 💍';document.title='Wedding — '+name;
   $('sb-date').textContent=fmtDate(date);$('sb-cnt').textContent=daysLeft(date);
   if($('de-date'))$('de-date').value=date;if($('de-name'))$('de-name').value=name;
+  // Sync mobile header
+  const mn=$('mob-name'),md=$('mob-date'),mc=$('mob-cnt');
+  if(mn)mn.textContent=name+' 💍';
+  if(md)md.textContent=fmtDate(date);
+  if(mc)mc.textContent=daysLeft(date);
+  // Sync mob edit inputs
+  const mdd=$('mob-de-date'),mdn=$('mob-de-name');
+  if(mdd)mdd.value=date;if(mdn)mdn.value=name;
 };
 window.toggleDE=()=>$('de-bar').classList.toggle('show');
 window.saveWeddingInfo=async()=>{
   await update(ref(db,'config/wedding'),{date:$('de-date').value,name:$('de-name').value.trim()||'Khanh & Tú'});
   $('de-bar').classList.remove('show');toast('Đã lưu!');
+};
+window.toggleMobDE=()=>{
+  const bar=$('mob-de-bar');if(!bar)return;
+  bar.classList.toggle('show');
+};
+window.saveMobDE=async()=>{
+  const date=$('mob-de-date')?.value,name=$('mob-de-name')?.value.trim()||'Khanh & Tú';
+  await update(ref(db,'config/wedding'),{date,name});
+  $('mob-de-bar').classList.remove('show');toast('Đã lưu!');
 };
 
 // ── NAV ──────────────────────────────────
