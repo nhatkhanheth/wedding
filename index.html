@@ -2,7 +2,7 @@
 <html lang="vi">
 <head>
 <meta charset="UTF-8"/>
-<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no, viewport-fit=cover"/>
 <meta name="apple-mobile-web-app-capable" content="yes"/>
 <meta name="apple-mobile-web-app-status-bar-style" content="black"/>
 <meta name="apple-mobile-web-app-title" content="Wedding Planner"/>
@@ -1320,7 +1320,7 @@ body{
 </style>
 </head>
 <body>
-<div id="loading"><div class="spin"></div><p>Đang kết nối...</p></div>
+<div id="loading"><div class="spin"></div><p id="loading-msg">Đang kết nối Firebase...</p><p id="loading-hint" style="font-size:11px;color:#3a5a3a;margin-top:8px;text-align:center;max-width:260px;display:none">Nếu mãi không load, kiểm tra Firebase Realtime DB Rules</p></div>
 
 <!-- PWA BANNER -->
 <div id="pwa-banner">
@@ -4632,8 +4632,10 @@ const esc=s=>String(s||'').replace(/\\/g,'\\\\').replace(/'/g,"\\'").replace(/"/
 // ── PWA ──────────────────────────────────
 const isIOS=/iphone|ipad|ipod/i.test(navigator.userAgent);
 const isStandalone=window.navigator.standalone===true;
-if(isIOS&&!isStandalone&&!localStorage.getItem('pwa_shown')){setTimeout(()=>{$('pwa-banner').style.display='block';},2500);}
-window.closePWA=()=>{$('pwa-banner').style.display='none';localStorage.setItem('pwa_shown','1');};
+// Show PWA banner: on iOS Safari (not standalone), if not dismissed before
+const shouldShowPWA = isIOS && !isStandalone && !localStorage.getItem('pwa_shown_v2');
+if(shouldShowPWA){ setTimeout(()=>{ const b=$('pwa-banner'); if(b) b.style.display='block'; }, 1500); }
+window.closePWA=()=>{const b=$('pwa-banner');if(b)b.style.display='none';localStorage.setItem('pwa_shown_v2','1');};
 
 // ── AUTH ──────────────────────────────────
 window.switchLTab=(tab,btn)=>{document.querySelectorAll('.ltab').forEach(b=>b.classList.remove('on'));btn.classList.add('on');$('lt-admin').style.display=tab==='admin'?'block':'none';$('lt-changepw').style.display=tab==='changepw'?'block':'none';$('login-err').textContent='';};
@@ -4703,6 +4705,21 @@ window.doInlineLogin=async()=>{
 // ── AUTO LOGIN ──────────────────────────────
 const init=async()=>{
   const saved=localStorage.getItem(SK);
+  // Show hint if loading takes too long
+  const hintTimer = setTimeout(()=>{ const h=$('loading-hint'); if(h) h.style.display='block'; }, 3000);
+  // Test Firebase connection first
+  try {
+    await get(ref(db,'config/wedding'));
+  } catch(e) {
+    console.warn('Firebase initial check:', e.code, e.message);
+    if(e.code === 'PERMISSION_DENIED') {
+      const msg = $('loading-msg');
+      if(msg) msg.textContent = '⚠️ Firebase Rules chưa mở. Vào Realtime Database → Rules → Publish với read/write: true';
+      const h=$('loading-hint'); if(h) h.style.display='block';
+      await new Promise(r=>setTimeout(r,3000));
+    }
+  }
+  clearTimeout(hintTimer);
   $('loading').style.display='none';
   if(saved==='admin'){role='admin';enterApp();}
   else if(saved==='readonly'){role='readonly';enterApp();}
@@ -4712,13 +4729,27 @@ init();
 
 // ── SUBSCRIPTIONS ──────────────────────────────
 const subscribeAll=()=>{
-  onValue(ref(db,'config/wedding'),snap=>{DATA.config=snap.val()||{};renderWeddingInfo();});
-  onValue(ref(db,'budget'),snap=>{DATA.budget=snap.val()||{};renderBudget();renderFund();updateDash();});
-  onValue(ref(db,'fund'),snap=>{DATA.fund=snap.val()||{};renderFund();updateDash();});
-  onValue(ref(db,'gift_tables'),snap=>{DATA.gift_tables=snap.val()||{};renderGift();updateDash();});
-  onValue(ref(db,'gift_guests'),snap=>{DATA.gift_guests=snap.val()||{};renderGift();updateDash();});
-  onValue(ref(db,'contacts'),snap=>{DATA.contacts=snap.val()||{};renderContacts();});
-  onValue(ref(db,'checklist'),snap=>{DATA.checklist=snap.val()||{};renderChecklist();updateDash();});
+  // Subscribe with error handling for permission issues
+  const sub=(path,cb,errCb)=>{
+    onValue(ref(db,path),cb,err=>{
+      console.error('Firebase read error on',path,':',err.code,err.message);
+      if(errCb) errCb(err);
+    });
+  };
+  sub('config/wedding',snap=>{DATA.config=snap.val()||{};renderWeddingInfo();});
+  sub('budget',snap=>{DATA.budget=snap.val()||{};renderBudget();renderFund();updateDash();});
+  sub('fund',snap=>{DATA.fund=snap.val()||{};renderFund();updateDash();});
+  sub('gift_tables',snap=>{DATA.gift_tables=snap.val()||{};renderGift();updateDash();});
+  sub('gift_guests',snap=>{DATA.gift_guests=snap.val()||{};renderGift();updateDash();});
+  sub('contacts',snap=>{DATA.contacts=snap.val()||{};renderContacts();});
+  sub('checklist',snap=>{DATA.checklist=snap.val()||{};renderChecklist();updateDash();},
+    err=>{
+      // If permission denied, show warning
+      if(err.code==='PERMISSION_DENIED'){
+        toast('⚠️ Cần mở Firebase Rules! Vào Realtime DB → Rules → set read/write: true');
+      }
+    }
+  );
 };
 
 // ── WEDDING INFO ──────────────────────────────
@@ -5098,11 +5129,12 @@ const updateDash=()=>{
     const pe=$(pid),be=$(bid);if(pe)pe.textContent=pct+'%';if(be){be.style.width=pct+'%';be.style.background=col;}
   });
   const dd=$('dash-days');if(!dd)return;
-  dd.innerHTML=['pre','wed','party'].map(day=>{
+  const dayRows=['pre','wed','party'].map(day=>{
     const di=budgets.filter(i=>i.day===day);
     const dt=di.reduce((a,i)=>a+(Number(i.total)||0),0),dep=di.reduce((a,i)=>a+(Number(i.deposit)||0),0);
     return`<div class="exp-item"><div class="exp-dot" style="background:${DOTS[day]}"></div><div style="flex:1"><div class="exp-name">${DAYS[day]}</div><div class="exp-sub">${di.length} hạng mục</div></div><div><div class="exp-price">${fmt(dt)}</div><div class="exp-rem">còn ${fmt(dt-dep)}</div></div></div>`;
-  }).join('');
+  });
+  dd.innerHTML=dayRows.join('') || '<div style="color:var(--text3);font-size:13px">Chưa có dữ liệu.</div>';
 };
 
 // ── MODAL / UTILS ──────────────────────────────
