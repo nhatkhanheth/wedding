@@ -1162,6 +1162,24 @@ body{
 .pill.on{background:var(--green3);color:var(--green);border-color:var(--green2)}
 .pill-s{font-size:10px;color:var(--text3);margin-left:2px}
 .pill.on .pill-s{color:#7ad880}
+.day-pill-edit{background:none;border:none;cursor:pointer;color:var(--text3);padding:2px 4px;border-radius:5px;line-height:1;opacity:.5;flex-shrink:0;display:flex;align-items:center}
+.day-pill-edit:hover{opacity:1;color:var(--green);background:var(--bg2)}
+.day-add-pill{background:transparent;border:1px dashed var(--border)!important;color:var(--text3)!important}
+.day-add-pill:hover{border-color:var(--green2)!important;color:var(--green)!important}
+.color-swatch{transition:border .15s,transform .15s}
+.color-swatch:hover{transform:scale(1.15)}
+.color-swatch.selected{border:3px solid #fff!important}
+.reorder-btn{font-size:12px;font-weight:500;padding:7px 12px;border-radius:9px;border:1px solid var(--border);background:var(--bg3);color:var(--text1);cursor:pointer;font-family:'Outfit',sans-serif;flex:1;transition:all .15s}
+.reorder-btn:hover:not(.disabled){background:var(--green3);border-color:var(--green2);color:var(--green)}
+.reorder-btn.disabled{opacity:.35;cursor:not-allowed}
+.filter-pills{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:14px}
+.fpill{font-size:11px;font-weight:500;padding:4px 11px;border-radius:20px;border:1px solid var(--border);color:var(--text3);background:var(--bg1);cursor:pointer;font-family:'Outfit',sans-serif;white-space:nowrap;display:flex;align-items:center;gap:5px}
+.fpill.on{color:var(--text1);border-color:var(--text2)}
+.fpill.on.f-all{background:var(--bg3);color:var(--text1)}
+.fpill.on.f-done{background:#162a1e;color:#6ad880;border-color:#2a4a32}
+.fpill.on.f-dep{background:#2a1e08;color:#c09040;border-color:#3a2e10}
+.fpill.on.f-pend{background:#281018;color:#c06070;border-color:#3a1828}
+.fpill-dot{width:7px;height:7px;border-radius:50%}
 /* ── EXPENSE ── */
 .exp-item{padding:10px 0;border-bottom:1px solid var(--bg2);display:flex;align-items:flex-start;gap:9px}
 .exp-item:last-child{border-bottom:none}
@@ -4557,11 +4575,12 @@ QTK8RleIFBMrxGV4oCgmV4oJrxAoJleKGVnAFBMrxDx4oCcw+Qz5klyfID//2Q==" alt="logo"/>
   <!-- BUDGET -->
   <div class="page" id="page-budget">
     <div class="page-title">Chi tiêu</div>
-    <div class="day-pills">
-      <button class="pill on" onclick="switchDay('all',this)">Tất cả <span class="pill-s" id="ps-all"></span></button>
-      <button class="pill" onclick="switchDay('pre',this)">Trước đám cưới <span class="pill-s" id="ps-pre"></span></button>
-      <button class="pill" onclick="switchDay('wed',this)">Rước dâu <span class="pill-s" id="ps-wed"></span></button>
-      <button class="pill" onclick="switchDay('party',this)">Nhà hàng <span class="pill-s" id="ps-party"></span></button>
+    <div class="day-pills" id="day-pills-container"></div>
+    <div class="filter-pills" id="filter-pills">
+      <button class="fpill f-all on" onclick="switchFilter('all',this)">Tất cả</button>
+      <button class="fpill f-done" onclick="switchFilter('done',this)"><span class="fpill-dot" style="background:#6ad880"></span>Hoàn tất</button>
+      <button class="fpill f-dep" onclick="switchFilter('deposit',this)"><span class="fpill-dot" style="background:#c09040"></span>Đã cọc</button>
+      <button class="fpill f-pend" onclick="switchFilter('pending',this)"><span class="fpill-dot" style="background:#c06070"></span>Chưa đặt</button>
     </div>
     <div id="budget-content"></div>
   </div>
@@ -4647,10 +4666,13 @@ const app=initializeApp({apiKey:"AIzaSyD7qGol-oL1XHt9UufrD337pQ-PnSnl4sQ",authDo
 const db=getDatabase(app);
 
 // ── STATE ──────────────────────────────
-let role=null,currentDay='all',activeGiftTable=null,activeGiftGuest=null,editingExpId=null;
+let role=null,currentDay='all',currentFilter='all',activeGiftTable=null,activeGiftGuest=null,editingExpId=null,editingFundId=null;
 let DATA={config:{},budget:{},fund:{},gift_tables:{},gift_guests:{},contacts:{},checklist:{}};
-const DAYS={pre:'Trước đám cưới',wed:'Ngày rước dâu',party:'Đám cưới nhà hàng'};
-const DOTS={pre:'#52c46a',wed:'#2e8a42',party:'#1a5228'};
+// Days loaded from Firebase, defaults used until loaded
+let DAYS={pre:'Trước đám cưới',wed:'Ngày rước dâu',party:'Đám cưới nhà hàng'};
+let DAYS_ORDER=['pre','wed','party'];
+const DOTS_PALETTE=['#52c46a','#2e8a42','#1a5228','#3a8a5a','#7ac46a','#1a6a3a','#60b450','#2a6a40'];
+let DOTS={pre:'#52c46a',wed:'#2e8a42',party:'#1a5228'};
 const BADGE={done:['b-done','Hoàn tất'],deposit:['b-dep','Đã cọc'],pending:['b-pend','Chưa đặt']};
 const STATIC_ITEMS=[
   {id:'c1',text:'Đặt nhà hàng tiệc cưới'},{id:'c2',text:'Đặt lịch & cọc studio ảnh cưới'},
@@ -4733,6 +4755,7 @@ const enterApp=()=>{
   $('role-badge').className='role-badge '+(admin?'rb-admin':'rb-ro');
   document.querySelectorAll('.admin-only').forEach(el=>el.style.display=admin?'':'none');
   subscribeAll();
+  // renderDayPills called via subscription
 };
 
 window.toggleInlineLogin=()=>{const il=$('inline-login');il.style.display=il.style.display==='none'?'block':'none';};
@@ -4790,6 +4813,28 @@ const subscribeAll=()=>{
     });
   };
   sub('config/wedding',snap=>{DATA.config=snap.val()||{};renderWeddingInfo();});
+  sub('config/days',snap=>{
+    const d=snap.val();
+    if(d&&Object.keys(d).length>0){
+      // Rebuild DAYS and DOTS from Firebase
+      const entries=Object.entries(d).sort((a,b)=>(a[1].order||0)-(b[1].order||0));
+      DAYS={};DOTS={};DAYS_ORDER=[];
+      entries.forEach(([id,v],i)=>{
+        DAYS[id]=v.name||id;
+        DOTS[id]=v.color||DOTS_PALETTE[i%DOTS_PALETTE.length];
+        DAYS_ORDER.push(id);
+      });
+    } else {
+      // Seed default days if none exist
+      const defaults={
+        pre:{name:'Trước đám cưới',color:'#52c46a',order:0},
+        wed:{name:'Ngày rước dâu',color:'#2e8a42',order:1},
+        party:{name:'Đám cưới nhà hàng',color:'#1a5228',order:2}
+      };
+      set(ref(db,'config/days'),defaults);
+    }
+    renderDayPills();renderBudget();updateDash();
+  });
   sub('budget',snap=>{DATA.budget=snap.val()||{};renderBudget();renderFund();updateDash();});
   sub('fund',snap=>{DATA.fund=snap.val()||{};renderFund();updateDash();});
   sub('gift_tables',snap=>{DATA.gift_tables=snap.val()||{};renderGift();updateDash();});
@@ -4844,34 +4889,182 @@ window.goPage=(id,btn)=>{
 };
 
 // ── BUDGET ──────────────────────────────────
-window.switchDay=(day,btn)=>{currentDay=day;document.querySelectorAll('.pill').forEach(p=>p.classList.remove('on'));btn.classList.add('on');renderBudget();};
+// ── DAY TABS MANAGEMENT ──────────────────────────
+const renderDayPills=()=>{
+  const container=$('day-pills-container');if(!container)return;
+  const items=budgetArr();
+  const admin=isAdmin();
+  const allTotal=items.reduce((a,i)=>a+(Number(i.total)||0),0);
+  let h=`<button class="pill${currentDay==='all'?' on':''}" onclick="switchDay('all',this)">Tất cả <span class="pill-s">${fmt(allTotal)}</span></button>`;
+  DAYS_ORDER.forEach(dayId=>{
+    const total=items.filter(i=>i.day===dayId).reduce((a,i)=>a+(Number(i.total)||0),0);
+    h+=`<div style="display:flex;align-items:center;gap:2px">
+      <button class="pill${currentDay===dayId?' on':''}" onclick="switchDay('${dayId}',this)">${DAYS[dayId]||dayId} <span class="pill-s">${fmt(total)}</span></button>
+      ${admin?`<button class="day-pill-edit" onclick="editDayTab('${dayId}')" title="Sửa/Xoá ngày">
+        <svg width="11" height="11" viewBox="0 0 13 13" fill="none"><path d="M9.5 1.5L11.5 3.5L4 11H2V9L9.5 1.5Z" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/></svg>
+      </button>`:''}
+    </div>`;
+  });
+  h+=admin?`<button class="pill day-add-pill" onclick="addDayTab()">+ Thêm ngày</button>`:'';
+  container.innerHTML=h;
+  // Re-highlight active pill
+  container.querySelectorAll('.pill').forEach(p=>{
+    if(p.textContent.trim().startsWith(currentDay==='all'?'Tất cả':(DAYS[currentDay]||currentDay))){
+      // handled by class in template above
+    }
+  });
+};
+
+window.switchDay=(day,btn)=>{
+  currentDay=day;
+  // Update visual active state
+  document.querySelectorAll('#day-pills-container .pill').forEach(p=>p.classList.remove('on'));
+  if(btn)btn.classList.add('on');
+  renderBudget();
+};
+
+window.addDayTab=()=>{
+  openDayModal(null);
+};
+
+window.editDayTab=(dayId)=>{
+  openDayModal(dayId);
+};
+
+window.openDayModal=(dayId)=>{
+  const isEdit=!!dayId;
+  const curName=dayId?DAYS[dayId]:'';
+  const curColor=dayId?DOTS[dayId]:'#52c46a';
+  const curIdx=dayId?DAYS_ORDER.indexOf(dayId):-1;
+  const canMoveUp=curIdx>0;
+  const canMoveDown=curIdx>=0&&curIdx<DAYS_ORDER.length-1;
+  $('modal-title').textContent=isEdit?'Sửa tab ngày':'Thêm tab ngày mới';
+  $('modal-body').innerHTML=`
+    <div class="fg">
+      <div class="full"><label class="field-lbl">Tên ngày *</label>
+        <input id="dt-name" placeholder="vd: Ngày ăn hỏi" value="${curName}"/>
+      </div>
+      <div class="full"><label class="field-lbl">Màu tab</label>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:4px">
+          ${DOTS_PALETTE.map(c=>`<button onclick="selectDayColor('${c}',this)" class="color-swatch${c===curColor?' selected':''}" style="width:28px;height:28px;border-radius:50%;background:${c};border:${c===curColor?'3px solid #fff':'2px solid transparent'};cursor:pointer"></button>`).join('')}
+        </div>
+        <input type="hidden" id="dt-color" value="${curColor}"/>
+      </div>
+      ${isEdit?`<div class="full"><label class="field-lbl">Vị trí (${curIdx+1}/${DAYS_ORDER.length})</label>
+        <div style="display:flex;gap:8px;margin-top:6px">
+          <button class="reorder-btn${canMoveUp?'':' disabled'}" onclick="moveDayTab('${dayId}',-1)" ${canMoveUp?'':'disabled'}>◀ Lên trước</button>
+          <button class="reorder-btn${canMoveDown?'':' disabled'}" onclick="moveDayTab('${dayId}',1)" ${canMoveDown?'':'disabled'}>Xuống sau ▶</button>
+        </div>
+      </div>`:''}
+    </div>
+    <div class="f-acts" style="margin-top:12px">
+      <button class="btn-save" onclick="saveDayTab('${dayId||''}')">Lưu</button>
+      ${isEdit?`<button class="btn-cancel" onclick="deleteDayTab('${dayId}')" style="color:var(--red);border-color:#3a1828">🗑 Xoá ngày</button>`:''}
+      <button class="btn-cancel" onclick="closeModal()">Huỷ</button>
+    </div>`;
+  openModalEl();
+};
+
+window.moveDayTab=async(dayId,direction)=>{
+  const idx=DAYS_ORDER.indexOf(dayId);
+  if(idx===-1)return;
+  const newIdx=idx+direction;
+  if(newIdx<0||newIdx>=DAYS_ORDER.length)return;
+  const idA=DAYS_ORDER[idx];
+  const idB=DAYS_ORDER[newIdx];
+  const updates={};
+  updates['config/days/'+idA+'/order']=newIdx;
+  updates['config/days/'+idB+'/order']=idx;
+  await update(ref(db),updates);
+  toast('Đã di chuyển!');
+  closeModal();
+};
+
+window.selectDayColor=(color,btn)=>{
+  document.querySelectorAll('.color-swatch').forEach(b=>{b.style.border='2px solid transparent';b.classList.remove('selected');});
+  btn.style.border='3px solid #fff';btn.classList.add('selected');
+  const inp=$('dt-color');if(inp)inp.value=color;
+};
+
+window.saveDayTab=async(dayId)=>{
+  const name=$('dt-name')?.value.trim();
+  const color=$('dt-color')?.value||'#52c46a';
+  if(!name){toast('Nhập tên ngày!');return;}
+  if(dayId){
+    // Edit existing
+    await update(ref(db,'config/days/'+dayId),{name,color});
+    toast('Đã cập nhật!');
+  }else{
+    // Add new with unique id
+    const newId='day_'+Date.now();
+    const order=DAYS_ORDER.length;
+    await set(ref(db,'config/days/'+newId),{name,color,order});
+    toast('Đã thêm ngày mới!');
+  }
+  closeModal();
+};
+
+window.deleteDayTab=async(dayId)=>{
+  const itemsInDay=budgetArr().filter(i=>i.day===dayId);
+  if(itemsInDay.length>0){
+    if(!confirm(`Ngày này có ${itemsInDay.length} hạng mục chi tiêu. Xoá ngày sẽ xoá hết hạng mục trong ngày này. Tiếp tục?`))return;
+    // Delete all items in this day
+    for(const item of itemsInDay){
+      await remove(ref(db,'budget/'+item.id));
+    }
+  }else{
+    if(!confirm('Xoá tab ngày này?'))return;
+  }
+  await remove(ref(db,'config/days/'+dayId));
+  if(currentDay===dayId)currentDay='all';
+  closeModal();toast('Đã xoá!');
+};
 const budgetArr=()=>Object.entries(DATA.budget).map(([id,v])=>({id,...v}));
+
+window.switchFilter=(filter,btn)=>{
+  currentFilter=filter;
+  document.querySelectorAll('.fpill').forEach(p=>p.classList.remove('on'));
+  btn.classList.add('on');
+  renderBudget();
+};
+
+const applyFilter=(items)=>currentFilter==='all'?items:items.filter(i=>i.status===currentFilter);
 
 const renderBudget=()=>{
   const items=budgetArr();
-  ['pre','wed','party'].forEach(d=>{const s=items.filter(i=>i.day===d).reduce((a,i)=>a+(Number(i.total)||0),0);const el=$('ps-'+d);if(el)el.textContent=fmt(s);});
+  // Update day pill totals (unfiltered)
+  // Day totals updated via renderDayPills now
   const allTotal=items.reduce((a,i)=>a+(Number(i.total)||0),0);
   const psAll=$('ps-all');if(psAll)psAll.textContent=fmt(allTotal);
   const el=$('budget-content');if(!el)return;
   const admin=isAdmin();
+  // Filter label
+  const filterLabel=currentFilter==='all'?'':` · lọc: ${{'done':'Hoàn tất','deposit':'Đã cọc','pending':'Chưa đặt'}[currentFilter]||''}`;
   if(currentDay==='all'){
-    let h=`<div class="card"><div class="card-head"><span class="card-title">Tất cả chi tiêu</span><span class="card-meta">${fmt(allTotal)} · ${items.length} hạng mục</span></div><div class="card-body">`;
-    ['pre','wed','party'].forEach(day=>{
-      const di=items.filter(i=>i.day===day),dt=di.reduce((a,i)=>a+(Number(i.total)||0),0);
+    const filtered=applyFilter(items);
+    const filteredTotal=filtered.reduce((a,i)=>a+(Number(i.total)||0),0);
+    let h=`<div class="card"><div class="card-head"><span class="card-title">Tất cả chi tiêu${filterLabel}</span><span class="card-meta">${fmt(filteredTotal)} · ${filtered.length} mục</span></div><div class="card-body">`;
+    DAYS_ORDER.forEach(day=>{
+      const di=applyFilter(items.filter(i=>i.day===day));
+      const dt=di.reduce((a,i)=>a+(Number(i.total)||0),0);
+      if(di.length===0&&currentFilter!=='all')return;
       h+=`<div class="grp-hdr"><span>${DAYS[day]}</span><span>${fmt(dt)}</span></div>`;
+      if(di.length===0)h+=`<div style="color:var(--text3);font-size:12px;padding:6px 0">Không có hạng mục.</div>`;
       di.forEach(item=>{h+=expHTML(item,false);});
     });
-    h+=`</div><div class="sec-total"><span class="st-l">Tổng tất cả</span><span class="st-v">${fmt(allTotal)}</span></div></div>`;
+    h+=`</div><div class="sec-total"><span class="st-l">Tổng${filterLabel}</span><span class="st-v">${fmt(filteredTotal)}</span></div></div>`;
     el.innerHTML=h;
   }else{
-    const di=items.filter(i=>i.day===currentDay);
-    const dt=di.reduce((a,i)=>a+(Number(i.total)||0),0);
-    const dep=di.reduce((a,i)=>a+(Number(i.deposit)||0),0);
-    let h=`<div class="card"><div class="card-head"><span class="card-title">${DAYS[currentDay]}</span>${admin?`<button class="btn-sm" onclick="openBudgetModal('${currentDay}')">+ Thêm</button>`:''}</div><div class="card-body" id="exp-list-${currentDay}">`;
-    if(!di.length)h+=`<div style="color:var(--text3);font-size:13px;padding:4px 0">Chưa có hạng mục.</div>`;
+    const all=items.filter(i=>i.day===currentDay);
+    const di=applyFilter(all);
+    const dt=all.reduce((a,i)=>a+(Number(i.total)||0),0);
+    const dep=all.reduce((a,i)=>a+(Number(i.deposit)||0),0);
+    const filteredTotal=di.reduce((a,i)=>a+(Number(i.total)||0),0);
+    let h=`<div class="card"><div class="card-head"><span class="card-title">${DAYS[currentDay]}${filterLabel}</span>${admin?`<button class="btn-sm" onclick="openBudgetModal('${currentDay}')">+ Thêm</button>`:''}</div><div class="card-body" id="exp-list-${currentDay}">`;
+    if(!di.length)h+=`<div style="color:var(--text3);font-size:13px;padding:4px 0">${currentFilter==='all'?'Chưa có hạng mục.':'Không có hạng mục phù hợp.'}</div>`;
     di.forEach(item=>{h+=expHTML(item,true);});
-    h+=`${admin?`<button class="btn-dashed" onclick="openBudgetModal('${currentDay}')">+ Thêm hạng mục</button>`:''}
-    </div><div class="sec-total"><span class="st-l">Tổng ngày này</span><span class="st-v">${fmt(dt)} · còn ${fmt(dt-dep)}</span></div></div>`;
+    h+=`${admin&&currentFilter==='all'?`<button class="btn-dashed" onclick="openBudgetModal('${currentDay}')">+ Thêm hạng mục</button>`:''}
+    </div><div class="sec-total"><span class="st-l">${currentFilter==='all'?'Tổng ngày này':'Tổng lọc'}</span><span class="st-v">${currentFilter==='all'?fmt(dt)+' · còn '+fmt(dt-dep):fmt(filteredTotal)}</span></div></div>`;
     el.innerHTML=h;
   }
 };
@@ -4900,7 +5093,10 @@ const expHTML=(item,showActs)=>{
 window.openBudgetModal=(day,itemId)=>{
   editingExpId=itemId||null;
   const item=itemId?DATA.budget[itemId]:null;
+  const itemDay=item?.day||day;
   $('modal-title').textContent=item?'Sửa hạng mục':'Thêm hạng mục';
+  // Build day options for select
+  const dayOpts=DAYS_ORDER.map(d=>`<option value="${d}"${d===itemDay?' selected':''}>${DAYS[d]||d}</option>`).join('');
   $('modal-body').innerHTML=`
     <div class="fg">
       <div class="full"><label class="field-lbl">Tên dịch vụ *</label><input id="mf-name" value="${esc(item?.name||'')}"/></div>
@@ -4914,16 +5110,19 @@ window.openBudgetModal=(day,itemId)=>{
         <option value="deposit"${item?.status==='deposit'?' selected':''}>Đã cọc</option>
         <option value="done"${item?.status==='done'?' selected':''}>Hoàn tất</option>
       </select></div>
+      <div><label class="field-lbl">Thuộc ngày</label><select id="mf-day">${dayOpts}</select></div>
       <div><label class="field-lbl">Hạn TT</label><input id="mf-deadline" type="date" value="${item?.deadline||''}" style="color-scheme:dark"/></div>
       <div class="full"><label class="field-lbl">Ghi chú</label><input id="mf-note" value="${esc(item?.note||'')}"/></div>
     </div>
-    <div class="f-acts"><button class="btn-save" onclick="saveBudgetItem('${day}')">Lưu</button><button class="btn-cancel" onclick="closeModal()">Huỷ</button></div>`;
+    <div class="f-acts"><button class="btn-save" onclick="saveBudgetItem()">Lưu</button><button class="btn-cancel" onclick="closeModal()">Huỷ</button></div>`;
   openModalEl();
 };
 
-window.saveBudgetItem=async(day)=>{
+window.saveBudgetItem=async()=>{
   const name=$('mf-name')?.value.trim(),total=Number($('mf-total')?.value)||0;
   if(!name){toast('Nhập tên!');return;}if(!total){toast('Nhập tổng giá!');return;}
+  // Get day from select (allows moving to different day)
+  const day=$('mf-day')?.value||currentDay;
   const data={day,name,vendor:$('mf-vendor')?.value||'',phone:$('mf-phone')?.value||'',qty:Number($('mf-qty')?.value)||1,total,deposit:Number($('mf-deposit')?.value)||0,status:$('mf-status')?.value||'pending',deadline:$('mf-deadline')?.value||'',note:$('mf-note')?.value||'',ts:Date.now()};
   if(editingExpId){await update(ref(db,'budget/'+editingExpId),data);toast('Đã cập nhật!');}
   else{await set(push(ref(db,'budget')),data);toast('Đã thêm!');}
@@ -4932,34 +5131,62 @@ window.saveBudgetItem=async(day)=>{
 
 // ── FUND ──────────────────────────────────
 const renderFund=()=>{
-  const items=Object.entries(DATA.fund).map(([id,v])=>({id,...v}));
+  const items=Object.entries(DATA.fund).map(([id,v])=>({id,...v})).sort((a,b)=>(a.ts||0)-(b.ts||0));
   const totalFund=items.reduce((a,i)=>a+(Number(i.amount)||0),0);
   const budgets=Object.values(DATA.budget);
   const spent=budgets.reduce((a,i)=>a+(Number(i.deposit)||0),0);
   const totalCost=budgets.reduce((a,i)=>a+(Number(i.total)||0),0);
-  // "Còn phải trả" = tổng các mục CHƯA done, sau khi trừ tiền cọc
   const pendingItems=budgets.filter(i=>i.status!=='done');
   const needPay=pendingItems.reduce((a,i)=>a+(Number(i.total)||0)-(Number(i.deposit)||0),0);
   const left=totalFund-totalCost;
   const admin=isAdmin();
   const fl=$('fund-list');if(!fl)return;
   fl.innerHTML=(items.length===0?'<div style="color:var(--text3);font-size:13px">Chưa có nguồn quỹ.</div>':'')+
-    items.map(i=>`<div class="fund-row"><div><div class="fr-lbl">${i.name||'—'}</div>${i.note?`<div class="fr-sub">${i.note}</div>`:''}</div><div style="display:flex;align-items:center;gap:8px"><div class="fr-val">${fmt(i.amount)}</div>${admin?`<button class="btn-del-sm" onclick="delDB('fund','${i.id}')">✕</button>`:''}</div></div>`).join('')+
+    items.map(i=>`<div class="fund-row">
+      <div style="flex:1;min-width:0">
+        <div class="fr-lbl">${i.name||'—'}</div>
+        ${i.note?`<div class="fr-sub">${i.note}</div>`:''}
+      </div>
+      <div style="display:flex;align-items:center;gap:8px;flex-shrink:0">
+        <div class="fr-val">${fmt(i.amount)}</div>
+        ${admin?`
+          <button class="btn-exp-edit" onclick="openFundModal('${i.id}')" style="padding:3px 8px">✎</button>
+          <button class="btn-del-sm" onclick="delDB('fund','${i.id}')">✕</button>
+        `:''}
+      </div>
+    </div>`).join('')+
     `<div class="fund-total"><span class="ft-l">Tổng quỹ</span><span class="ft-v">${fmt(totalFund)}</span></div>`;
   const fu=$('fund-usage');if(!fu)return;
   fu.innerHTML=`
     <div class="fund-row"><div class="fr-lbl">Đã chi &amp; cọc</div><div style="font-size:15px;font-weight:700;color:var(--red)">−${fmt(spent)}</div></div>
-    <div class="fund-row"><div class="fr-lbl">Còn phải trả (chưa thanh toán)</div><div style="font-size:15px;font-weight:700;color:var(--amber)">−${fmt(needPay>0?needPay:0)}</div></div>
+    <div class="fund-row"><div class="fr-lbl">Còn phải trả (chưa TT)</div><div style="font-size:15px;font-weight:700;color:var(--amber)">−${fmt(needPay>0?needPay:0)}</div></div>
     <div class="fund-row" style="border:none;padding-top:12px;border-top:1px solid var(--border);margin-top:4px">
       <div style="font-size:14px;font-weight:600;color:var(--text1)">Dự kiến còn lại</div>
       <div style="font-size:20px;font-weight:700;color:${left>=0?'var(--green)':'var(--red)'}">${left>=0?'+':''}${fmt(left)}</div>
     </div>`;
 };
 
+// Open fund modal (add or edit)
+window.openFundModal=(fundId)=>{
+  editingFundId=fundId||null;
+  const item=fundId?DATA.fund[fundId]:null;
+  $('modal-title').textContent=item?'Sửa nguồn quỹ':'Thêm nguồn quỹ';
+  $('modal-body').innerHTML=`
+    <div class="fg">
+      <div class="full"><label class="field-lbl">Tên nguồn *</label><input id="ff-name" placeholder="vd: Tiết kiệm" value="${item?.name||''}"/></div>
+      <div class="full"><label class="field-lbl">Ghi chú</label><input id="ff-note" placeholder="Ghi chú..." value="${item?.note||''}"/></div>
+      <div class="full"><label class="field-lbl">Số tiền (VNĐ) *</label><input id="ff-amt" type="number" placeholder="0" value="${item?.amount||''}"/></div>
+    </div>
+    <div class="f-acts">
+      <button class="btn-save" onclick="saveFund()">Lưu</button>
+      <button class="btn-cancel" onclick="closeModal()">Huỷ</button>
+    </div>`;
+  openModalEl();
+};
+
 window.openModal=(type)=>{
   if(type==='fund'){
-    $('modal-title').textContent='Thêm nguồn quỹ';
-    $('modal-body').innerHTML=`<div class="fg"><div class="full"><label class="field-lbl">Tên nguồn *</label><input id="ff-name" placeholder="vd: Tiết kiệm"/></div><div class="full"><label class="field-lbl">Ghi chú</label><input id="ff-note" placeholder="Ghi chú..."/></div><div class="full"><label class="field-lbl">Số tiền (VNĐ) *</label><input id="ff-amt" type="number" placeholder="0"/></div></div><div class="f-acts"><button class="btn-save" onclick="saveFund()">Lưu</button><button class="btn-cancel" onclick="closeModal()">Huỷ</button></div>`;
+    openFundModal(null);return;
   }else if(type==='contact'){
     $('modal-title').textContent='Thêm nhà cung cấp';
     $('modal-body').innerHTML=`<div class="fg"><div class="full"><label class="field-lbl">Tên *</label><input id="cf-name" placeholder="vd: Studio Ánh Hồng"/></div><div><label class="field-lbl">Vai trò</label><input id="cf-role" placeholder="vd: Chụp ảnh"/></div><div><label class="field-lbl">SĐT</label><input id="cf-phone" placeholder="0909..."/></div><div class="full"><label class="field-lbl">Địa chỉ</label><input id="cf-addr" placeholder="Địa chỉ..."/></div><div><label class="field-lbl">Trạng thái</label><select id="cf-status"><option value="pending">Chưa đặt</option><option value="deposit">Đã cọc</option><option value="done">Hoàn tất</option></select></div><div class="full"><label class="field-lbl">Ghi chú</label><input id="cf-note" placeholder="Ghi chú..."/></div></div><div class="f-acts"><button class="btn-save" onclick="saveContact()">Lưu</button><button class="btn-cancel" onclick="closeModal()">Huỷ</button></div>`;
@@ -4970,8 +5197,15 @@ window.openModal=(type)=>{
 window.saveFund=async()=>{
   const name=$('ff-name')?.value.trim(),amt=Number($('ff-amt')?.value)||0;
   if(!name){toast('Nhập tên!');return;}
-  await set(push(ref(db,'fund')),{name,note:$('ff-note')?.value||'',amount:amt,ts:Date.now()});
-  closeModal();toast('Đã thêm nguồn quỹ!');
+  if(editingFundId){
+    await update(ref(db,'fund/'+editingFundId),{name,note:$('ff-note')?.value||'',amount:amt});
+    toast('Đã cập nhật!');
+  }else{
+    await set(push(ref(db,'fund')),{name,note:$('ff-note')?.value||'',amount:amt,ts:Date.now()});
+    toast('Đã thêm nguồn quỹ!');
+  }
+  editingFundId=null;
+  closeModal();
 };
 
 // ── GIFT ──────────────────────────────────
@@ -5199,7 +5433,7 @@ const updateDash=()=>{
     const pe=$(pid),be=$(bid);if(pe)pe.textContent=pct+'%';if(be){be.style.width=pct+'%';be.style.background=col;}
   });
   const dd=$('dash-days');if(!dd)return;
-  const dayRows=['pre','wed','party'].map(day=>{
+  const dayRows=DAYS_ORDER.map(day=>{
     const di=budgets.filter(i=>i.day===day);
     const dt=di.reduce((a,i)=>a+(Number(i.total)||0),0),dep=di.reduce((a,i)=>a+(Number(i.deposit)||0),0);
     return`<div class="exp-item"><div class="exp-dot" style="background:${DOTS[day]}"></div><div style="flex:1"><div class="exp-name">${DAYS[day]}</div><div class="exp-sub">${di.length} hạng mục</div></div><div><div class="exp-price">${fmt(dt)}</div><div class="exp-rem">còn ${fmt(dt-dep)}</div></div></div>`;
