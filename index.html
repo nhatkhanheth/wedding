@@ -1319,6 +1319,13 @@ body{
 .cc-role{font-size:11px;color:var(--green);margin-top:2px;font-weight:500}
 .cc-row{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text2);margin-bottom:4px}
 .cc-note{font-size:11px;color:var(--text3);background:var(--bg2);border-radius:7px;padding:7px 9px;margin-top:6px;line-height:1.5}
+.cc-img{width:100%;max-height:180px;object-fit:cover;border-radius:9px;margin-top:8px;display:block;border:1px solid var(--border)}
+.cc-img-wrap{position:relative;margin-top:8px}
+.cc-img-del{position:absolute;top:6px;right:6px;background:rgba(0,0,0,.6);border:none;border-radius:50%;width:24px;height:24px;color:#fff;font-size:13px;cursor:pointer;display:flex;align-items:center;justify-content:center;line-height:1}
+.img-upload-label{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--green);background:var(--green3);border:1px solid var(--green2);border-radius:8px;padding:8px 12px;cursor:pointer;margin-top:8px;font-family:'Outfit',sans-serif;font-weight:500}
+.img-upload-label input[type=file]{display:none}
+.img-preview{width:100%;max-height:140px;object-fit:cover;border-radius:8px;margin-top:8px;display:block;border:1px solid var(--border)}
+.img-preview.hidden{display:none}
 /* ── TOAST ── */
 .toast{position:fixed;bottom:calc(88px + env(safe-area-inset-bottom));left:50%;transform:translateX(-50%);background:var(--green2);color:#fff;font-size:13px;font-weight:600;padding:10px 18px;border-radius:12px;z-index:999;opacity:0;transition:opacity .3s;pointer-events:none;font-family:'Outfit',sans-serif;white-space:nowrap;box-shadow:0 4px 20px rgba(0,0,0,.4)}
 .toast.show{opacity:1}
@@ -4630,7 +4637,7 @@ QTK8RleIFBMrxGV4oCgmV4oJrxAoJleKGVnAFBMrxDx4oCcw+Qz5klyfID//2Q==" alt="logo"/>
   <div class="page" id="page-contacts">
     <div class="page-title">Liên hệ &amp; Nhà cung cấp</div>
     <div id="contacts-list"></div>
-    <button class="btn-dashed admin-only" onclick="openModal('contact')" style="display:none">+ Thêm nhà cung cấp</button>
+    <button class="btn-dashed admin-only" onclick="openContactModal(null)" style="display:none">+ Thêm nhà cung cấp</button>
   </div>
 </div><!-- /main -->
 </div><!-- /sidebar+main row -->
@@ -4895,11 +4902,11 @@ const renderDayPills=()=>{
   const items=budgetArr();
   const admin=isAdmin();
   const allTotal=items.reduce((a,i)=>a+(Number(i.total)||0),0);
-  let h=`<button class="pill${currentDay==='all'?' on':''}" onclick="switchDay('all',this)">Tất cả <span class="pill-s">${fmt(allTotal)}</span></button>`;
+  let h=`<button class="pill${currentDay==='all'?' on':''}" onclick="switchDay('all',this)">Tất cả <span class="pill-s">${allTotal>0?fmt(allTotal):''}</span></button>`;
   DAYS_ORDER.forEach(dayId=>{
     const total=items.filter(i=>i.day===dayId).reduce((a,i)=>a+(Number(i.total)||0),0);
     h+=`<div style="display:flex;align-items:center;gap:2px">
-      <button class="pill${currentDay===dayId?' on':''}" onclick="switchDay('${dayId}',this)">${DAYS[dayId]||dayId} <span class="pill-s">${fmt(total)}</span></button>
+      <button class="pill${currentDay===dayId?' on':''}" onclick="switchDay('${dayId}',this)">${DAYS[dayId]||dayId} <span class="pill-s">${total>0?fmt(total):''}</span></button>
       ${admin?`<button class="day-pill-edit" onclick="editDayTab('${dayId}')" title="Sửa/Xoá ngày">
         <svg width="11" height="11" viewBox="0 0 13 13" fill="none"><path d="M9.5 1.5L11.5 3.5L4 11H2V9L9.5 1.5Z" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/></svg>
       </button>`:''}
@@ -5122,7 +5129,9 @@ window.saveBudgetItem=async()=>{
   const name=$('mf-name')?.value.trim(),total=Number($('mf-total')?.value)||0;
   if(!name){toast('Nhập tên!');return;}if(!total){toast('Nhập tổng giá!');return;}
   // Get day from select (allows moving to different day)
-  const day=$('mf-day')?.value||currentDay;
+  // Never save with day='all', fallback to first available day
+  const selectedDay=$('mf-day')?.value;
+  const day=(selectedDay&&selectedDay!=='all'&&selectedDay!=='')?selectedDay:(currentDay!=='all'?currentDay:(DAYS_ORDER[0]||'pre'));
   const data={day,name,vendor:$('mf-vendor')?.value||'',phone:$('mf-phone')?.value||'',qty:Number($('mf-qty')?.value)||1,total,deposit:Number($('mf-deposit')?.value)||0,status:$('mf-status')?.value||'pending',deadline:$('mf-deadline')?.value||'',note:$('mf-note')?.value||'',ts:Date.now()};
   if(editingExpId){await update(ref(db,'budget/'+editingExpId),data);toast('Đã cập nhật!');}
   else{await set(push(ref(db,'budget')),data);toast('Đã thêm!');}
@@ -5188,8 +5197,7 @@ window.openModal=(type)=>{
   if(type==='fund'){
     openFundModal(null);return;
   }else if(type==='contact'){
-    $('modal-title').textContent='Thêm nhà cung cấp';
-    $('modal-body').innerHTML=`<div class="fg"><div class="full"><label class="field-lbl">Tên *</label><input id="cf-name" placeholder="vd: Studio Ánh Hồng"/></div><div><label class="field-lbl">Vai trò</label><input id="cf-role" placeholder="vd: Chụp ảnh"/></div><div><label class="field-lbl">SĐT</label><input id="cf-phone" placeholder="0909..."/></div><div class="full"><label class="field-lbl">Địa chỉ</label><input id="cf-addr" placeholder="Địa chỉ..."/></div><div><label class="field-lbl">Trạng thái</label><select id="cf-status"><option value="pending">Chưa đặt</option><option value="deposit">Đã cọc</option><option value="done">Hoàn tất</option></select></div><div class="full"><label class="field-lbl">Ghi chú</label><input id="cf-note" placeholder="Ghi chú..."/></div></div><div class="f-acts"><button class="btn-save" onclick="saveContact()">Lưu</button><button class="btn-cancel" onclick="closeModal()">Huỷ</button></div>`;
+    openContactModal(null);return;
   }
   openModalEl();
 };
@@ -5400,14 +5408,118 @@ const renderContacts=()=>{
   el.innerHTML=items.map(c=>{
     const[bc,bl]=BADGE[c.status]||BADGE.pending;
     const init=(c.name||'?').split(' ').map(w=>w[0]).slice(-2).join('').toUpperCase();
-    return`<div class="cc"><div class="cc-top"><div class="cc-av">${init}</div><div style="flex:1"><div class="cc-name">${c.name||'—'}</div><div class="cc-role">${c.role||''}</div></div><div style="display:flex;align-items:center;gap:8px"><span class="badge ${bc}">${bl}</span>${admin?`<button class="btn-del-sm" onclick="delDB('contacts','${c.id}')">✕</button>`:''}</div></div>${c.phone?`<div class="cc-row"><span>☏</span><span>${c.phone}</span></div>`:''}${c.addr?`<div class="cc-row"><span>◎</span><span>${c.addr}</span></div>`:''}${c.note?`<div class="cc-note">${c.note}</div>`:''}</div>`;
+    return`<div class="cc">
+      <div class="cc-top">
+        <div class="cc-av">${init}</div>
+        <div style="flex:1"><div class="cc-name">${c.name||'—'}</div><div class="cc-role">${c.role||''}</div></div>
+        <div style="display:flex;align-items:center;gap:8px">
+          <span class="badge ${bc}">${bl}</span>
+          ${admin?`<button class="btn-exp-edit" onclick="openContactModal('${c.id}')" style="padding:3px 8px">✎</button>`:''}</div>
+      </div>
+      ${c.phone?`<div class="cc-row"><span>☏</span><span>${c.phone}</span></div>`:''}
+      ${c.addr?`<div class="cc-row"><span>◎</span><span>${c.addr}</span></div>`:''}
+      ${c.note?`<div class="cc-note">${c.note}</div>`:''}
+      ${c.img?`<div class="cc-img-wrap"><img src="${c.img}" class="cc-img" loading="lazy" onclick="viewImg('${c.id}')"/></div>`:''}
+    </div>`;
   }).join('');
+};
+
+let editingContactId=null;
+let pendingContactImg=''; // base64 of uploaded image
+
+window.openContactModal=(contactId)=>{
+  editingContactId=contactId||null;
+  pendingContactImg='';
+  const item=contactId?DATA.contacts[contactId]:null;
+  $('modal-title').textContent=item?'Sửa nhà cung cấp':'Thêm nhà cung cấp';
+  $('modal-body').innerHTML=`
+    <div class="fg">
+      <div class="full"><label class="field-lbl">Tên *</label><input id="cf-name" placeholder="vd: Studio Ánh Hồng" value="${esc(item?.name||'')}"/></div>
+      <div><label class="field-lbl">Vai trò</label><input id="cf-role" placeholder="vd: Chụp ảnh" value="${esc(item?.role||'')}"/></div>
+      <div><label class="field-lbl">SĐT</label><input id="cf-phone" placeholder="0909..." value="${esc(item?.phone||'')}"/></div>
+      <div class="full"><label class="field-lbl">Địa chỉ</label><input id="cf-addr" placeholder="Địa chỉ..." value="${esc(item?.addr||'')}"/></div>
+      <div><label class="field-lbl">Trạng thái</label><select id="cf-status">
+        <option value="pending"${(!item||item.status==='pending')?' selected':''}>Chưa đặt</option>
+        <option value="deposit"${item?.status==='deposit'?' selected':''}>Đã cọc</option>
+        <option value="done"${item?.status==='done'?' selected':''}>Hoàn tất</option>
+      </select></div>
+      <div class="full"><label class="field-lbl">Ghi chú</label><input id="cf-note" placeholder="Ghi chú..." value="${esc(item?.note||'')}"/></div>
+      <div class="full">
+        <label class="field-lbl">Hình ảnh</label>
+        ${item?.img?`<div class="cc-img-wrap" id="cf-img-wrap">
+          <img src="${item.img}" class="img-preview" id="cf-img-preview"/>
+          <button class="cc-img-del" onclick="clearContactImg()" title="Xoá ảnh">✕</button>
+        </div>`:`<img class="img-preview hidden" id="cf-img-preview"/>`}
+        <label class="img-upload-label">
+          <svg width="16" height="16" fill="none" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><polyline points="17 8 12 3 7 8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><line x1="12" y1="3" x2="12" y2="15" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+          Chọn ảnh từ máy
+          <input type="file" accept="image/*" onchange="previewContactImg(this)"/>
+        </label>
+        <div style="font-size:10px;color:var(--text3);margin-top:4px">Ảnh sẽ được nén tự động. Nên dùng ảnh &lt;2MB.</div>
+      </div>
+    </div>
+    <div class="f-acts">
+      <button class="btn-save" onclick="saveContact()">Lưu</button>
+      ${item?`<button class="btn-cancel" onclick="deleteContact('${contactId}')" style="color:var(--red);border-color:#3a1828">🗑 Xoá</button>`:''}
+      <button class="btn-cancel" onclick="closeModal()">Huỷ</button>
+    </div>`;
+  openModalEl();
+};
+
+window.previewContactImg=(input)=>{
+  const file=input.files[0];if(!file)return;
+  // Compress image before storing
+  const reader=new FileReader();
+  reader.onload=e=>{
+    const img=new Image();
+    img.onload=()=>{
+      const canvas=document.createElement('canvas');
+      const MAX=800;
+      let w=img.width,h=img.height;
+      if(w>MAX){h=Math.round(h*MAX/w);w=MAX;}
+      if(h>MAX){w=Math.round(w*MAX/h);h=MAX;}
+      canvas.width=w;canvas.height=h;
+      canvas.getContext('2d').drawImage(img,0,0,w,h);
+      const compressed=canvas.toDataURL('image/jpeg',0.75);
+      pendingContactImg=compressed;
+      const preview=$('cf-img-preview');
+      if(preview){preview.src=compressed;preview.classList.remove('hidden');}
+    };
+    img.src=e.target.result;
+  };
+  reader.readAsDataURL(file);
+};
+
+window.clearContactImg=()=>{
+  pendingContactImg='__clear__';
+  const preview=$('cf-img-preview');
+  if(preview){preview.src='';preview.classList.add('hidden');}
+  const wrap=$('cf-img-wrap');if(wrap)wrap.style.display='none';
+};
+
+window.deleteContact=async(id)=>{
+  if(!confirm('Xoá liên hệ này?'))return;
+  await remove(ref(db,'contacts/'+id));
+  closeModal();toast('Đã xoá!');
 };
 
 window.saveContact=async()=>{
   const name=$('cf-name')?.value.trim();if(!name){toast('Nhập tên!');return;}
-  await set(push(ref(db,'contacts')),{name,role:$('cf-role')?.value||'',phone:$('cf-phone')?.value||'',addr:$('cf-addr')?.value||'',status:$('cf-status')?.value||'pending',note:$('cf-note')?.value||'',ts:Date.now()});
-  closeModal();toast('Đã thêm!');
+  let imgVal=undefined;
+  if(pendingContactImg==='__clear__') imgVal='';
+  else if(pendingContactImg) imgVal=pendingContactImg;
+  else if(editingContactId&&DATA.contacts[editingContactId]?.img) imgVal=DATA.contacts[editingContactId].img;
+  const data={name,role:$('cf-role')?.value||'',phone:$('cf-phone')?.value||'',addr:$('cf-addr')?.value||'',status:$('cf-status')?.value||'pending',note:$('cf-note')?.value||'',ts:Date.now()};
+  if(imgVal!==undefined)data.img=imgVal;
+  if(editingContactId){
+    await update(ref(db,'contacts/'+editingContactId),data);
+    toast('Đã cập nhật!');
+  }else{
+    await set(push(ref(db,'contacts')),data);
+    toast('Đã thêm!');
+  }
+  editingContactId=null;pendingContactImg='';
+  closeModal();
 };
 
 // ── DASHBOARD ──────────────────────────────
@@ -5443,7 +5555,19 @@ const updateDash=()=>{
 
 // ── MODAL / UTILS ──────────────────────────────
 const openModalEl=()=>$('modal-overlay').classList.add('show');
-window.closeModal=()=>{$('modal-overlay').classList.remove('show');editingExpId=null;};
+window.closeModal=()=>{$('modal-overlay').classList.remove('show');editingExpId=null;editingFundId=null;};
+
+// Fullscreen image viewer
+window.viewImg=(contactId)=>{
+  const c=DATA.contacts[contactId];if(!c?.img)return;
+  const overlay=document.createElement('div');
+  overlay.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.92);z-index:9999;display:flex;align-items:center;justify-content:center;cursor:pointer;padding:20px';
+  overlay.onclick=()=>overlay.remove();
+  const img=document.createElement('img');
+  img.src=c.img;img.style.cssText='max-width:100%;max-height:90vh;border-radius:12px;object-fit:contain';
+  overlay.appendChild(img);
+  document.body.appendChild(overlay);
+};
 window.delDB=async(col,id)=>{if(!confirm('Xoá mục này?'))return;await remove(ref(db,col+'/'+id));toast('Đã xoá!');};
 </script>
 </body>
