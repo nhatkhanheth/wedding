@@ -15,31 +15,35 @@
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{
---olive-deep:#2d3a16;--olive:#4a5d20;--olive-mid:#6b8338;--olive-bright:#a8b85a;--olive-glow:#c9d575;
---cream:#f5ecd0;--cream-soft:#e8dfc0;--cream-dim:rgba(245,236,208,.62);--cream-faint:rgba(245,236,208,.38);
---gold:#c9a961;--gold-light:#e6c989;
---bg-base:#0a0f07;--success:#8fb84a;--warning:#d4a942;--danger:#c96b5a;--info:#7a9a8e;
---glass-bg:linear-gradient(135deg,rgba(245,236,208,.05),rgba(168,184,90,.02) 50%,rgba(13,19,10,.25));
---glass-border:rgba(245,236,208,.09);--glass-border-hover:rgba(245,236,208,.16);
---glass-blur:blur(20px) saturate(160%);
---shadow-card:0 4px 20px rgba(0,0,0,.3),inset 0 1px 0 rgba(245,236,208,.08),inset 0 -1px 0 rgba(0,0,0,.15);
---r-sm:10px;--r-md:14px;--r-lg:18px;
+--bg-base:#040704;--bg-elevated:#0b100b;--bg-card:rgba(12,16,11,.74);
+--olive-950:#040704;--olive-900:#0b140c;--olive-800:#182414;--olive-700:#2f421a;--olive-600:#536a24;--olive-500:#7d8f35;--olive-400:#b4c457;
+--cream-50:#fff7d8;--cream-100:#f7edbc;--cream-200:#eadb9a;
+--gold-300:#e6c989;--gold-400:#d0b35f;--gold-500:#a98235;
+--olive-deep:var(--olive-900);--olive:var(--olive-700);--olive-mid:var(--olive-600);--olive-bright:var(--olive-500);--olive-glow:var(--olive-400);
+--cream:var(--cream-50);--cream-soft:var(--cream-100);--cream-dim:rgba(255,247,216,.68);--cream-faint:rgba(255,247,216,.42);
+--gold:var(--gold-400);--gold-light:var(--gold-300);
+--success:#9fbe64;--warning:#e0b55d;--danger:#e08b76;--info:#93adbd;--booked:#91a9bd;
+--glass-bg:linear-gradient(145deg,rgba(255,247,216,.062),rgba(208,179,95,.026) 40%,rgba(10,14,9,.72));
+--glass-border:rgba(234,219,154,.14);--glass-border-hover:rgba(230,201,137,.28);
+--glass-blur:blur(22px) saturate(150%);
+--shadow-card:0 18px 55px rgba(0,0,0,.28),0 4px 18px rgba(0,0,0,.22),inset 0 1px 0 rgba(255,247,216,.09);
+--shadow-soft:0 14px 34px rgba(0,0,0,.22);
+--r-sm:12px;--r-md:18px;--r-lg:22px;--r-xl:26px;
 --safe-top:env(safe-area-inset-top);--safe-bot:env(safe-area-inset-bottom);
 --ease-out:cubic-bezier(.22,1,.36,1);
 }
 html,body{background:var(--bg-base);color:var(--cream);font-family:'Outfit',system-ui,-apple-system,sans-serif;font-size:14px;line-height:1.5;-webkit-font-smoothing:antialiased;-webkit-tap-highlight-color:transparent;overflow-x:hidden;width:100%}
 body{min-height:100vh;position:relative;margin:0}
-body::before{content:'';position:fixed;inset:-20%;background:radial-gradient(circle at 18% 22%,rgba(107,131,56,.28),transparent 38%),radial-gradient(circle at 82% 18%,rgba(168,184,90,.18),transparent 42%),radial-gradient(circle at 75% 78%,rgba(201,169,97,.14),transparent 45%),radial-gradient(circle at 22% 82%,rgba(74,93,32,.22),transparent 40%);filter:blur(70px);z-index:-2;animation:aurora 26s ease-in-out infinite;pointer-events:none}
-body::after{content:'';position:fixed;inset:0;background:radial-gradient(ellipse at 50% 0%,rgba(45,58,22,.35),transparent 60%),linear-gradient(180deg,rgba(6,9,4,.2),rgba(10,15,7,.5));z-index:-1;pointer-events:none}
-@keyframes aurora{0%,100%{transform:rotate(0deg) scale(1)}33%{transform:rotate(6deg) scale(1.06)}66%{transform:rotate(-4deg) scale(.96)}}
+body::before{content:'';position:fixed;inset:0;background:linear-gradient(135deg,rgba(4,7,4,.98),rgba(9,14,8,.94) 48%,rgba(4,7,4,.98)),radial-gradient(ellipse at 50% 0%,rgba(230,201,137,.08),transparent 46%);z-index:-2;pointer-events:none}
+body::after{content:'';position:fixed;inset:0;background:linear-gradient(90deg,rgba(255,247,216,.024) 1px,transparent 1px),linear-gradient(180deg,rgba(255,247,216,.018) 1px,transparent 1px);background-size:84px 84px;mask-image:linear-gradient(180deg,rgba(0,0,0,.7),rgba(0,0,0,.08));z-index:-1;pointer-events:none}
 
-.glass{background:var(--glass-bg);backdrop-filter:var(--glass-blur);-webkit-backdrop-filter:var(--glass-blur);border:1px solid var(--glass-border);border-radius:var(--r-md);box-shadow:var(--shadow-card);position:relative;overflow:hidden}
-.glass::before{content:'';position:absolute;inset:0;background:linear-gradient(105deg,transparent 45%,rgba(245,236,208,.05) 50%,transparent 55%);pointer-events:none;opacity:0;transition:opacity .6s var(--ease-out)}
-.glass:hover::before{opacity:1}
+.glass{background:var(--glass-bg);backdrop-filter:var(--glass-blur);-webkit-backdrop-filter:var(--glass-blur);border:1px solid var(--glass-border);border-radius:var(--r-lg);box-shadow:var(--shadow-card);position:relative;overflow:hidden}
+.glass::before{content:'';position:absolute;inset:0;background:linear-gradient(120deg,transparent 25%,rgba(255,247,216,.055) 48%,transparent 70%);pointer-events:none;opacity:0;transition:opacity .45s var(--ease-out)}
+.glass:hover::before{opacity:.55}
 
 .num{font-variant-numeric:tabular-nums;font-feature-settings:'tnum'}
-.gradient-cream{background:linear-gradient(135deg,#faf3dc,#f5ecd0 50%,#d4c89a);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
-.gradient-gold{background:linear-gradient(135deg,#e6c989,#c9a961 60%,#8b7340);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+.gradient-cream{background:linear-gradient(135deg,var(--cream-50),var(--cream-100) 54%,var(--gold-300));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+.gradient-gold{background:linear-gradient(135deg,var(--gold-300),var(--gold-400) 58%,var(--gold-500));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
 .text-dim{color:var(--cream-dim)}.text-faint{color:var(--cream-faint)}.text-gold{color:var(--gold-light)}.text-warning{color:var(--warning)}.text-danger{color:var(--danger)}.text-success{color:var(--success)}
 
 .ic{display:inline-flex;width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:1.2;stroke-linecap:round;stroke-linejoin:round;flex-shrink:0}
@@ -48,20 +52,20 @@ body::after{content:'';position:fixed;inset:0;background:radial-gradient(ellipse
 .logo-img{display:block;border-radius:10px;object-fit:cover;box-shadow:0 2px 10px rgba(0,0,0,.3),inset 0 1px 0 rgba(245,236,208,.1)}
 .logo-fallback{display:none;align-items:center;justify-content:center;background:linear-gradient(135deg,#2d3a16 0%,#4a5d20 50%,#a8b85a 100%);border-radius:10px;font-family:'Cormorant Garamond',serif;font-weight:500;color:var(--cream);letter-spacing:-1px}
 
-.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:10px 16px;border:1px solid var(--glass-border);border-radius:11px;font-family:inherit;font-size:13px;font-weight:500;color:var(--cream);cursor:pointer;background:rgba(245,236,208,.04);transition:all .25s var(--ease-out);user-select:none}
-.btn:hover{border-color:var(--glass-border-hover);background:rgba(245,236,208,.07)}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;min-height:40px;padding:10px 16px;border:1px solid var(--glass-border);border-radius:13px;font-family:inherit;font-size:13px;font-weight:500;color:var(--cream);cursor:pointer;background:rgba(255,247,216,.045);transition:all .22s var(--ease-out);user-select:none}
+.btn:hover{border-color:var(--glass-border-hover);background:rgba(255,247,216,.075)}
 .btn:active{transform:scale(.98)}
-.btn-primary{background:linear-gradient(135deg,var(--olive-mid),var(--olive));border-color:rgba(201,213,117,.25);box-shadow:0 3px 12px rgba(107,131,56,.25),inset 0 1px 0 rgba(245,236,208,.15)}
-.btn-primary:hover{background:linear-gradient(135deg,var(--olive-bright),var(--olive-mid))}
-.btn-danger{background:rgba(201,107,90,.15);border-color:rgba(201,107,90,.35);color:var(--danger)}
+.btn-primary{background:linear-gradient(135deg,var(--olive-600),var(--olive-800));border-color:rgba(230,201,137,.28);box-shadow:0 8px 20px rgba(7,16,6,.28),inset 0 1px 0 rgba(255,247,216,.16)}
+.btn-primary:hover{background:linear-gradient(135deg,var(--olive-500),var(--olive-700))}
+.btn-danger{background:rgba(224,139,118,.13);border-color:rgba(224,139,118,.36);color:var(--danger)}
 .btn-ghost{background:transparent;border-color:transparent;color:var(--cream-dim)}
 .btn-ghost:hover{color:var(--cream);background:rgba(245,236,208,.04)}
 .btn-icon{width:36px;height:36px;padding:0;border-radius:10px}
 .btn-sm{padding:6px 11px;font-size:11px;border-radius:9px}
 
-.input,textarea.input,select.input{width:100%;padding:11px 14px;background:rgba(13,19,10,.4);border:1px solid var(--glass-border);border-radius:11px;color:var(--cream);font-family:inherit;font-size:14px;transition:all .25s var(--ease-out)}
+.input,textarea.input,select.input{width:100%;min-height:44px;padding:11px 14px;background:rgba(7,16,6,.5);border:1px solid rgba(234,219,154,.16);border-radius:13px;color:var(--cream);font-family:inherit;font-size:14px;transition:all .22s var(--ease-out)}
 textarea.input{resize:vertical;min-height:60px}
-.input:focus{outline:none;border-color:var(--olive-bright);box-shadow:0 0 0 3px rgba(168,184,90,.1)}
+.input:focus{outline:none;border-color:var(--gold-300);box-shadow:0 0 0 3px rgba(230,201,137,.1)}
 .input::placeholder{color:var(--cream-faint)}
 .label{display:block;font-size:10px;font-weight:500;color:var(--cream-dim);text-transform:uppercase;letter-spacing:.18em;margin-bottom:6px}
 .row{display:flex;gap:8px}.row>*{flex:1}
@@ -77,9 +81,9 @@ textarea.input{resize:vertical;min-height:60px}
 .login-title{text-align:center}
 .login-couple{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:28px;font-weight:500;line-height:1.1}
 .login-couple .sep{color:var(--gold);margin:0 3px;font-size:22px;font-style:normal;vertical-align:1px}
-.login-tagline{margin-top:6px;font-size:9px;font-weight:600;letter-spacing:.32em;color:var(--gold-light);text-transform:uppercase}
-.login-subtitle{display:flex;align-items:center;justify-content:center;gap:10px;margin-top:6px;color:var(--cream-faint);font-size:9px;font-weight:500;letter-spacing:.3em;text-transform:uppercase}
-.login-subtitle::before,.login-subtitle::after{content:'';height:1px;width:28px;background:linear-gradient(90deg,transparent,var(--gold),transparent)}
+.login-tagline{display:none}
+.login-subtitle{display:flex;align-items:center;justify-content:center;gap:12px;margin-top:10px;color:var(--gold-light);font-size:9px;font-weight:600;letter-spacing:.26em;text-transform:uppercase;white-space:nowrap}
+.login-subtitle::before,.login-subtitle::after{content:'';height:1px;width:38px;background:linear-gradient(90deg,transparent,var(--gold),transparent);opacity:.78}
 .login-date{margin-top:10px;font-family:'Outfit',sans-serif;font-size:13px;color:var(--gold-light);font-weight:500}
 .login-date .cd{display:inline-block;margin-left:4px;padding:1px 9px;background:rgba(201,169,97,.1);border:1px solid rgba(201,169,97,.22);border-radius:99px;font-size:11px}
 .login-form{width:100%;display:flex;flex-direction:column}
@@ -88,8 +92,13 @@ textarea.input{resize:vertical;min-height:60px}
 /* APP */
 .app{display:none}
 .app.active{display:flex;min-height:100vh}
+.app-loader{position:fixed;inset:0;z-index:120;display:flex;align-items:center;justify-content:center;background:radial-gradient(circle at 50% 28%,rgba(208,179,95,.13),transparent 34%),rgba(7,16,6,.92);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);opacity:1;pointer-events:auto;transition:opacity .34s var(--ease-out)}
+.app-loader.is-hidden{opacity:0;pointer-events:none}
+.app-loader-card{display:flex;align-items:center;gap:12px;padding:13px 18px;border-radius:999px;background:rgba(18,26,13,.74);border:1px solid rgba(230,201,137,.2);box-shadow:0 18px 44px rgba(0,0,0,.32),inset 0 1px 0 rgba(255,247,216,.08);color:var(--cream);font-size:12px;font-weight:600;letter-spacing:.12em;text-transform:uppercase}
+.app-loader-mark{width:10px;height:10px;border-radius:50%;background:var(--gold-300);box-shadow:0 0 18px rgba(230,201,137,.7);animation:loaderPulse 1s ease-in-out infinite}
+@keyframes loaderPulse{0%,100%{transform:scale(.75);opacity:.55}50%{transform:scale(1.15);opacity:1}}
 
-.sidebar{width:232px;flex-shrink:0;padding:18px 12px;padding-top:calc(18px + var(--safe-top));display:flex;flex-direction:column;gap:14px;border-right:1px solid rgba(245,236,208,.05);background:linear-gradient(180deg,rgba(13,19,10,.5),rgba(10,15,7,.3));backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);position:sticky;top:0;height:100vh;overflow-y:auto}
+.sidebar{width:244px;flex-shrink:0;padding:18px 12px;padding-top:calc(18px + var(--safe-top));display:flex;flex-direction:column;gap:14px;border-right:1px solid rgba(234,219,154,.09);background:linear-gradient(180deg,rgba(16,24,12,.78),rgba(7,16,6,.54));backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);position:sticky;top:0;height:100vh;overflow-y:auto}
 .sidebar-head{display:flex;align-items:center;gap:10px;padding:4px 6px}
 .sidebar-head .logo-img,.sidebar-head .logo-fallback{width:36px;height:36px;font-size:17px}
 .sidebar-head .title{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:17px;font-weight:500;line-height:1.1}
@@ -99,18 +108,18 @@ textarea.input{resize:vertical;min-height:60px}
 .sidebar-countdown .days{font-family:'Outfit',sans-serif;font-size:28px;font-weight:600;line-height:1;letter-spacing:-.5px}
 .sidebar-countdown .label-c{font-size:9px;letter-spacing:.25em;color:var(--cream-dim);margin-top:4px;text-transform:uppercase}
 .sidebar-countdown .date{font-family:'Outfit',sans-serif;font-size:12px;color:var(--gold-light);margin-top:8px;padding-top:8px;border-top:1px solid rgba(245,236,208,.06);font-weight:500}
-.nav{display:flex;flex-direction:column;gap:1px;flex:1}
-.nav-item{display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:10px;color:var(--cream-dim);text-decoration:none;font-size:13px;font-weight:500;cursor:pointer;transition:all .25s var(--ease-out);border:1px solid transparent;position:relative}
-.nav-item:hover{color:var(--cream);background:rgba(245,236,208,.03)}
-.nav-item.active{background:linear-gradient(135deg,rgba(107,131,56,.22),rgba(74,93,32,.1));color:var(--cream);border-color:rgba(168,184,90,.2)}
-.nav-item.active::before{content:'';position:absolute;left:-12px;top:50%;transform:translateY(-50%);width:2px;height:16px;background:linear-gradient(180deg,var(--olive-glow),var(--gold));border-radius:0 2px 2px 0}
-.sidebar-foot{padding:8px 6px;display:flex;align-items:center;justify-content:space-between;gap:6px}
+.nav{display:flex;flex-direction:column;gap:4px;flex:0}
+.nav-item{display:flex;align-items:center;gap:10px;min-height:42px;padding:10px 12px;border-radius:14px;color:var(--cream-dim);text-decoration:none;font-size:13px;font-weight:500;cursor:pointer;transition:all .22s var(--ease-out);border:1px solid transparent;position:relative}
+.nav-item:hover{color:var(--cream);background:rgba(255,247,216,.045)}
+.nav-item.active{background:linear-gradient(135deg,rgba(111,134,41,.26),rgba(208,179,95,.11));color:var(--cream);border-color:rgba(230,201,137,.24);box-shadow:inset 0 1px 0 rgba(255,247,216,.08)}
+.nav-item.active::before{content:'';position:absolute;left:-12px;top:50%;transform:translateY(-50%);width:2px;height:18px;background:linear-gradient(180deg,var(--gold-300),var(--olive-400));border-radius:0 2px 2px 0}
+.sidebar-foot{padding:12px 6px 4px;margin-top:auto;border-top:1px solid rgba(234,219,154,.08);display:flex;align-items:center;justify-content:space-between;gap:6px}
 .role-pill{display:inline-flex;align-items:center;gap:5px;padding:3px 9px;background:rgba(168,184,90,.13);border:1px solid rgba(168,184,90,.25);border-radius:99px;font-size:10px;color:var(--olive-glow);text-transform:uppercase;letter-spacing:.1em;font-weight:600}
 .role-pill .dot{width:5px;height:5px;border-radius:50%;background:var(--olive-glow);box-shadow:0 0 5px var(--olive-glow)}
 .role-pill.readonly{background:rgba(212,169,66,.13);border-color:rgba(212,169,66,.25);color:var(--warning)}
 .role-pill.readonly .dot{background:var(--warning);box-shadow:0 0 5px var(--warning)}
 
-.main{flex:1;padding:18px 24px;padding-top:calc(16px + var(--safe-top));min-height:100vh;overflow-x:hidden;min-width:0}
+.main{flex:1;padding:22px 28px;padding-top:calc(18px + var(--safe-top));min-height:100vh;overflow-x:hidden;min-width:0}
 .topbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;gap:10px}
 .topbar-left h1{font-family:'Outfit',sans-serif;font-size:22px;font-weight:600;color:var(--cream);line-height:1.1;letter-spacing:-.3px}
 .topbar-left .crumb{font-size:9px;letter-spacing:.28em;color:var(--cream-faint);text-transform:uppercase;margin-bottom:3px}
@@ -120,21 +129,21 @@ textarea.input{resize:vertical;min-height:60px}
 .readonly-banner{margin-bottom:14px;padding:9px 14px;background:rgba(212,169,66,.08);border:1px solid rgba(212,169,66,.25);border-radius:11px;color:var(--warning);font-size:12px;display:flex;align-items:center;gap:10px}
 .readonly-banner button{margin-left:auto;background:none;border:none;color:var(--warning);font-size:12px;cursor:pointer;font-family:inherit;text-decoration:underline}
 
-.page{animation:pageEnter .4s var(--ease-out)}
-@keyframes pageEnter{from{opacity:0;transform:translateY(8px);filter:blur(4px)}to{opacity:1;transform:translateY(0);filter:blur(0)}}
+.page{animation:pageEnter .34s var(--ease-out)}
+@keyframes pageEnter{from{opacity:0;transform:translateY(10px);filter:blur(5px)}to{opacity:1;transform:translateY(0);filter:blur(0)}}
 
 /* HERO */
-.hero{padding:22px 26px;margin-bottom:14px;text-align:center}
+.hero{padding:30px 28px;margin-bottom:16px;text-align:center;border-radius:var(--r-xl)}
 .hero-text .tagline{display:inline-flex;align-items:center;gap:8px;font-family:'Outfit',sans-serif;font-size:10px;font-weight:600;color:var(--gold-light);margin-bottom:12px;padding:4px 14px;background:rgba(201,169,97,.08);border:1px solid rgba(201,169,97,.22);border-radius:99px;letter-spacing:.28em;text-transform:uppercase}
 .hero-text .tagline .dot{color:var(--gold)}
-.hero-couple{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:34px;font-weight:500;line-height:1;margin-bottom:10px}
+.hero-couple{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:44px;font-weight:500;line-height:1;margin-bottom:12px;letter-spacing:.01em}
 .hero-couple .sep{color:var(--gold);font-size:24px;font-style:normal;margin:0 6px;vertical-align:3px}
 .hero-meta{display:flex;align-items:center;justify-content:center;gap:12px;font-family:'Outfit',sans-serif;font-size:14px;color:var(--cream-dim);flex-wrap:wrap;font-weight:500}
-.hero-meta .pill{padding:3px 12px;background:rgba(201,169,97,.1);border:1px solid rgba(201,169,97,.22);border-radius:99px;color:var(--gold-light);font-size:12px}
+.hero-meta .pill{padding:5px 14px;background:rgba(208,179,95,.13);border:1px solid rgba(230,201,137,.26);border-radius:99px;color:var(--gold-light);font-size:12px;box-shadow:inset 0 1px 0 rgba(255,247,216,.08)}
 
 /* STATS */
-.stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:14px}
-.stat{padding:14px 16px}
+.stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:16px}
+.stat{padding:16px 18px;border-radius:var(--r-lg)}
 .stat-head{display:flex;align-items:center;gap:7px;margin-bottom:8px;color:var(--cream-dim)}
 .stat-label{font-size:12px;font-weight:500;white-space:nowrap;letter-spacing:.02em}
 .stat-value{font-family:'Outfit',sans-serif;font-size:22px;font-weight:600;line-height:1.1;letter-spacing:-.3px;color:var(--cream);display:flex;align-items:baseline;gap:3px}
@@ -142,8 +151,8 @@ textarea.input{resize:vertical;min-height:60px}
 .stat-sub{font-size:11px;color:var(--cream-faint);margin-top:4px}
 
 /* PROGRESS BARS */
-.progress-section{margin-bottom:14px}
-.pb-wrap{padding:18px 22px}
+.progress-section{margin-bottom:16px}
+.pb-wrap{padding:20px 22px;border-radius:var(--r-lg)}
 .pb-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
 .pb-head h2{font-family:'Outfit',sans-serif;font-size:16px;font-weight:600;color:var(--cream)}
 .pb-head .ornament{color:var(--gold);font-size:10px;letter-spacing:.4em;opacity:.7}
@@ -153,11 +162,11 @@ textarea.input{resize:vertical;min-height:60px}
 .pb-row .lbl{color:var(--cream);font-weight:500;display:inline-flex;align-items:center;gap:8px}
 .pb-row .lbl .det{color:var(--cream-faint);font-size:11px;font-weight:400;font-variant-numeric:tabular-nums}
 .pb-row .pct{font-family:'Outfit',sans-serif;font-weight:600;font-variant-numeric:tabular-nums;color:var(--cream)}
-.pb-bar{position:relative;height:8px;background:rgba(245,236,208,.06);border-radius:99px;overflow:hidden;border:1px solid rgba(245,236,208,.04)}
+.pb-bar{position:relative;height:9px;background:rgba(255,247,216,.065);border-radius:99px;overflow:hidden;border:1px solid rgba(234,219,154,.06)}
 .pb-fill{position:absolute;top:0;left:0;height:100%;border-radius:99px;transition:width 1s var(--ease-out);background:linear-gradient(90deg,#a8b85a,#c9d575)}
 .pb-fill.gold{background:linear-gradient(90deg,#c9a961,#e6c989)}
 .pb-fill.green{background:linear-gradient(90deg,#6b8338,#8fb84a)}
-.pb-fill::after{content:'';position:absolute;inset:0;background:linear-gradient(90deg,transparent,rgba(255,255,255,.25),transparent);animation:shimmer 2.5s linear infinite}
+.pb-fill::after{content:'';position:absolute;inset:0;background:linear-gradient(90deg,transparent,rgba(255,255,255,.2),transparent);animation:shimmer 3.8s linear infinite}
 @keyframes shimmer{0%{transform:translateX(-100%)}100%{transform:translateX(100%)}}
 
 /* Day breakdown */
@@ -219,8 +228,73 @@ textarea.input{resize:vertical;min-height:60px}
 .status-done .d{background:var(--success);box-shadow:0 0 4px var(--success)}
 .status-deposit{background:rgba(212,169,66,.1);border:1px solid rgba(212,169,66,.28);color:var(--warning)}
 .status-deposit .d{background:var(--warning);box-shadow:0 0 4px var(--warning)}
+.status-booked{background:rgba(145,169,189,.11);border:1px solid rgba(145,169,189,.32);color:var(--booked)}
+.status-booked .d{background:var(--booked);box-shadow:0 0 4px var(--booked)}
 .status-pending{background:rgba(201,107,90,.1);border:1px solid rgba(201,107,90,.28);color:var(--danger)}
 .status-pending .d{background:var(--danger);box-shadow:0 0 4px var(--danger)}
+
+/* Dashboard insights */
+.insight-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-bottom:16px}
+.insight-panel{padding:18px 20px}
+.insight-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:12px}
+.insight-head h2{font-family:'Outfit',sans-serif;font-size:16px;font-weight:600;color:var(--cream)}
+.insight-head p{font-size:12px;color:var(--cream-faint);margin-top:2px}
+.insight-list{display:flex;flex-direction:column;gap:8px}
+.insight-item{display:flex;gap:10px;align-items:flex-start;padding:11px 12px;border-radius:14px;background:rgba(255,247,216,.035);border:1px solid rgba(234,219,154,.08)}
+.insight-icon{width:30px;height:30px;border-radius:10px;display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;background:rgba(208,179,95,.12);color:var(--gold-300)}
+.insight-title{font-size:13px;font-weight:600;color:var(--cream);line-height:1.25}
+.insight-meta{font-size:11px;color:var(--cream-faint);margin-top:2px}
+.insight-item.danger .insight-icon{background:rgba(224,139,118,.12);color:var(--danger)}
+.insight-item.warning .insight-icon{background:rgba(224,181,93,.12);color:var(--warning)}
+.insight-item.success .insight-icon{background:rgba(159,190,100,.12);color:var(--success)}
+
+/* Expense controls */
+.expense-toolbar{display:grid;grid-template-columns:minmax(220px,1fr) 190px;gap:10px;margin-bottom:12px}
+.search-wrap{position:relative}
+.search-wrap .ic{position:absolute;left:14px;top:50%;transform:translateY(-50%);color:var(--cream-faint);pointer-events:none}
+.search-wrap .input{padding-left:40px}
+.exp-card{align-items:stretch;padding:0;gap:0;overflow:hidden}
+.exp-card-inner{display:grid;grid-template-columns:10px minmax(0,1fr) auto;gap:12px;width:100%;padding:11px 14px;align-items:center}
+.exp-main{min-width:0}
+.exp-name-row{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:3px}
+.exp-inline-money{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-top:3px;font-size:11px;color:var(--cream-faint)}
+.exp-inline-money b{font-weight:600;color:var(--cream);font-variant-numeric:tabular-nums}
+.exp-inline-money .warn{color:var(--warning)}
+.exp-inline-money .ok{color:var(--success)}
+.exp-money-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin-top:12px}
+.exp-money-cell{padding:9px 10px;border-radius:12px;background:rgba(7,16,6,.34);border:1px solid rgba(234,219,154,.08)}
+.exp-money-cell .k{font-size:10px;color:var(--cream-faint);text-transform:uppercase;letter-spacing:.08em;margin-bottom:2px}
+.exp-money-cell .v{font-size:13px;font-weight:600;font-variant-numeric:tabular-nums;color:var(--cream);display:inline-flex;align-items:baseline;gap:2px}
+.exp-money-cell .v .u{font-size:10px;color:var(--cream-soft);opacity:.86}
+.deadline-pill{display:inline-flex;align-items:center;gap:4px;padding:2px 8px;border-radius:99px;font-size:10px;font-weight:500;border:1px solid rgba(234,219,154,.14);color:var(--cream-dim);background:rgba(255,247,216,.045)}
+.deadline-pill.overdue{color:var(--danger);border-color:rgba(224,139,118,.35);background:rgba(224,139,118,.11)}
+.deadline-pill.soon{color:var(--warning);border-color:rgba(224,181,93,.35);background:rgba(224,181,93,.1)}
+.pay-progress{height:5px;border-radius:99px;overflow:hidden;background:rgba(255,247,216,.07);margin-top:10px}
+.pay-progress span{display:block;height:100%;border-radius:inherit;background:linear-gradient(90deg,var(--gold-500),var(--gold-300))}
+
+/* Loading */
+.loading-state{padding:42px 20px;text-align:center}
+.loading-ring{width:38px;height:38px;margin:0 auto 14px;border-radius:50%;border:1px solid rgba(230,201,137,.18);border-top-color:var(--gold-300);animation:spin .9s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.loading-state h3{font-size:15px;font-weight:600;color:var(--cream);margin-bottom:4px}
+.loading-state p{font-size:12px;color:var(--cream-faint)}
+
+/* Public / viewer dashboards */
+.public-hero{padding:34px 28px;text-align:center;border-radius:30px;margin-bottom:16px}
+.public-logo{width:68px;height:68px;margin:0 auto 18px;border-radius:20px}
+.public-kicker{font-size:11px;letter-spacing:.26em;text-transform:uppercase;color:var(--gold-300);font-weight:600;margin-bottom:8px}
+.public-title{font-family:'Cormorant Garamond',serif;font-size:52px;font-style:italic;font-weight:500;line-height:1;color:var(--cream)}
+.public-subtitle{font-size:18px;color:var(--cream-soft);margin-top:12px}
+.public-divider{display:flex;align-items:center;gap:12px;justify-content:center;margin:16px auto;color:var(--gold-400);letter-spacing:.34em}
+.public-divider::before,.public-divider::after{content:'';width:72px;height:1px;background:linear-gradient(90deg,transparent,var(--gold-500),transparent)}
+.public-meta{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;color:var(--cream-dim)}
+.public-day-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px}
+.public-day-card{padding:16px 18px}
+.public-day-top{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+.public-day-name{font-size:16px;font-weight:700;color:var(--cream)}
+.public-day-date{font-size:13px;color:var(--gold-300);font-weight:600}
+.public-day-detail{font-size:12px;color:var(--cream-dim);line-height:1.5}
+.viewer-note{padding:14px 16px;margin-bottom:12px;color:var(--cream-dim);font-size:12px}
 
 /* Fund card */
 .fund-card{padding:13px 16px;display:flex;align-items:center;gap:12px}
@@ -265,6 +339,7 @@ textarea.input{resize:vertical;min-height:60px}
 .todo-deadline{font-size:11px;color:var(--cream-faint);margin-top:2px;display:inline-flex;align-items:center;gap:4px}
 .todo-deadline.overdue{color:var(--danger)}
 .todo-deadline.soon{color:var(--warning)}
+.todo-deadline.done{color:var(--success)}
 .todo-actions{display:flex;gap:4px;opacity:0;transition:opacity .2s}
 .todo-item:hover .todo-actions{opacity:1}
 @media (hover:none){.todo-actions{opacity:1}}
@@ -292,32 +367,48 @@ textarea.input{resize:vertical;min-height:60px}
 @media (hover:none){.contact-head-actions{opacity:1}}
 
 /* Timeline */
+.tl-day-tabs-wrap{display:flex;gap:8px;align-items:stretch;margin-bottom:12px}
+.tl-day-section{margin-bottom:14px}
+.tl-day-head{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:15px 18px;margin-bottom:8px}
+.tl-day-title{display:flex;align-items:center;gap:10px;min-width:0}
+.tl-day-dot{width:10px;height:10px;border-radius:50%;box-shadow:0 0 8px currentColor;flex-shrink:0}
+.tl-day-name{font-family:'Cormorant Garamond',serif;font-size:24px;font-weight:600;color:var(--cream);line-height:1}
+.tl-day-date{font-size:11px;color:var(--cream-faint);margin-top:2px}
 .tl-event{padding:13px 16px;display:flex;align-items:flex-start;gap:14px;cursor:pointer}
 .tl-time{font-family:'Outfit',sans-serif;font-size:16px;font-weight:600;color:var(--gold-light);min-width:62px;font-variant-numeric:tabular-nums}
 .tl-body{flex:1;min-width:0}
 .tl-name{font-family:'Outfit',sans-serif;font-size:15px;font-weight:600;color:var(--cream);line-height:1.3}
 .tl-note{font-size:12px;color:var(--cream-dim);margin-top:3px}
+.tl-actions{display:flex;gap:4px;opacity:.45;transition:opacity .2s}
+.tl-event:hover .tl-actions{opacity:1}
+.tl-day-mgr-grid{display:flex;flex-direction:column;gap:8px}
+.tl-day-mgr-item{display:grid;grid-template-columns:32px minmax(160px,1fr) 132px 104px 78px;gap:8px;align-items:center;padding:10px 12px;background:rgba(255,247,216,.035);border:1px solid var(--glass-border);border-radius:14px}
+.tl-day-mgr-item .input{min-width:0;width:100%}
+.tl-day-mgr-location{grid-column:2 / span 2}
+.tl-day-mgr-note{grid-column:4 / span 2}
+.tl-day-mgr-color-input{width:28px;height:28px;border-radius:50%;padding:0;border:0;background:transparent;overflow:hidden}
 
 /* Empty state */
-.empty{padding:40px 20px;text-align:center}
-.empty .ic-big{width:42px;height:42px;opacity:.3;margin-bottom:10px}
-.empty h3{font-family:'Outfit',sans-serif;font-weight:500;font-size:15px;margin-bottom:6px;color:var(--cream-dim)}
-.empty p{font-size:12px;color:var(--cream-faint)}
+.empty{padding:42px 20px;text-align:center}
+.empty .ic-big{width:44px;height:44px;opacity:.42;margin-bottom:12px;color:var(--gold-300)}
+.empty h3{font-family:'Outfit',sans-serif;font-weight:600;font-size:15px;margin-bottom:6px;color:var(--cream)}
+.empty p{font-size:12px;color:var(--cream-faint);max-width:320px;margin:0 auto 14px}
 
 /* FAB */
-.fab{position:fixed;right:22px;bottom:22px;width:50px;height:50px;border-radius:50%;background:linear-gradient(135deg,var(--olive-bright),var(--olive));color:var(--cream);border:1px solid rgba(201,213,117,.3);cursor:pointer;z-index:50;box-shadow:0 6px 18px rgba(74,93,32,.4),0 0 24px rgba(168,184,90,.22);transition:all .3s var(--ease-out);display:none;align-items:center;justify-content:center}
+.fab{position:fixed;right:22px;bottom:22px;width:52px;height:52px;border-radius:50%;background:linear-gradient(135deg,var(--olive-500),var(--olive-800));color:var(--cream);border:1px solid rgba(230,201,137,.32);cursor:pointer;z-index:50;box-shadow:0 10px 28px rgba(7,16,6,.38),0 0 24px rgba(208,179,95,.13);transition:all .25s var(--ease-out);display:none;align-items:center;justify-content:center}
 .fab.show{display:flex;animation:fabIn .4s var(--ease-out)}
-.fab:hover{transform:scale(1.08) rotate(90deg)}
+.fab:hover{transform:translateY(-1px) scale(1.04)}
+.fab .fab-label{display:none}
 @keyframes fabIn{from{transform:scale(0);opacity:0}to{transform:scale(1);opacity:1}}
 
 /* Modal */
-.modal-bd{position:fixed;inset:0;background:rgba(6,9,4,.65);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);z-index:200;display:none;align-items:center;justify-content:center;padding:16px;padding-top:calc(16px + var(--safe-top));padding-bottom:calc(16px + var(--safe-bot))}
+.modal-bd{position:fixed;inset:0;background:rgba(6,9,4,.68);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);z-index:200;display:none;align-items:center;justify-content:center;padding:16px;padding-top:calc(16px + var(--safe-top));padding-bottom:calc(16px + var(--safe-bot))}
 .modal-bd.show{display:flex;animation:fadeIn .25s var(--ease-out)}
 @keyframes fadeIn{from{opacity:0}to{opacity:1}}
-.modal{width:100%;max-width:480px;max-height:90vh;overflow-y:auto;padding:20px;animation:modalIn .35s var(--ease-out)}
+.modal{width:100%;max-width:480px;max-height:90vh;overflow-y:auto;padding:22px;animation:modalIn .32s var(--ease-out);border-radius:var(--r-xl)}
 @keyframes modalIn{from{opacity:0;transform:scale(.94) translateY(8px)}to{opacity:1;transform:scale(1) translateY(0)}}
-.modal h2{font-family:'Outfit',sans-serif;font-size:18px;font-weight:600;margin-bottom:16px;text-align:center;color:var(--cream)}
-.field{margin-bottom:12px}
+.modal h2{font-family:'Cormorant Garamond',serif;font-size:26px;font-weight:600;margin-bottom:16px;text-align:center;color:var(--cream)}
+.field{margin-bottom:14px}
 .modal-actions{display:flex;gap:8px;margin-top:16px}
 .modal-actions .btn{flex:1;padding:11px}
 
@@ -336,8 +427,10 @@ textarea.input{resize:vertical;min-height:60px}
 ::-webkit-scrollbar{width:6px;height:6px}
 ::-webkit-scrollbar-thumb{background:rgba(245,236,208,.08);border-radius:3px}
 
-.toast{position:fixed;bottom:calc(20px + var(--safe-bot));left:50%;transform:translateX(-50%) translateY(80px);padding:10px 18px;border-radius:12px;font-size:13px;z-index:250;opacity:0;transition:all .35s var(--ease-out);pointer-events:none;font-weight:500;max-width:calc(100vw - 40px)}
+.toast{position:fixed;bottom:calc(20px + var(--safe-bot));left:50%;transform:translateX(-50%) translateY(80px);padding:11px 18px;border-radius:14px;font-size:13px;z-index:250;opacity:0;transition:all .32s var(--ease-out);pointer-events:none;font-weight:500;max-width:calc(100vw - 40px);border:1px solid var(--glass-border)}
 .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+.toast.success{background:linear-gradient(135deg,rgba(159,190,100,.2),rgba(16,33,15,.9));border-color:rgba(159,190,100,.38);color:#dcebb3}
+.toast.warning{background:linear-gradient(135deg,rgba(224,181,93,.2),rgba(16,33,15,.9));border-color:rgba(224,181,93,.42);color:#f1d18d}
 .toast.error{background:linear-gradient(135deg,rgba(201,107,90,.2),rgba(201,107,90,.1));border-color:rgba(201,107,90,.4);color:#f0b8ae}
 
 .lightbox{position:fixed;inset:0;background:rgba(6,9,4,.92);z-index:300;display:none;align-items:center;justify-content:center;padding:20px;cursor:zoom-out}
@@ -349,7 +442,7 @@ textarea.input{resize:vertical;min-height:60px}
   body{font-size:13px}
   .app.active{display:block;min-height:100vh}
   .sidebar{display:none!important}
-  .mobile-head{display:flex!important;align-items:center;gap:10px;width:100%;padding:10px 14px;padding-top:calc(8px + var(--safe-top));position:sticky;top:0;z-index:40;background:rgba(10,15,7,.75);backdrop-filter:blur(18px) saturate(160%);-webkit-backdrop-filter:blur(18px) saturate(160%);border-bottom:1px solid rgba(245,236,208,.05)}
+  .mobile-head{display:flex!important;align-items:center;gap:10px;width:100%;padding:10px 14px;padding-top:calc(8px + var(--safe-top));position:sticky;top:0;z-index:40;background:rgba(7,16,6,.82);backdrop-filter:blur(20px) saturate(150%);-webkit-backdrop-filter:blur(20px) saturate(150%);border-bottom:1px solid rgba(234,219,154,.09)}
   .mobile-head .logo-img,.mobile-head .logo-fallback{width:32px;height:32px;font-size:15px;flex-shrink:0}
   .mobile-head .titles{flex:1;min-width:0}
   .mobile-head .titles .t1{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:17px;font-weight:500;line-height:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -358,17 +451,17 @@ textarea.input{resize:vertical;min-height:60px}
   .mobile-head .cd{text-align:right;padding-left:4px;flex-shrink:0}
   .mobile-head .cd .n{font-family:'Outfit',sans-serif;font-size:17px;font-weight:600;line-height:1;color:var(--gold-light)}
   .mobile-head .cd .l{font-size:8px;letter-spacing:.25em;color:var(--cream-faint);text-transform:uppercase;margin-top:1px}
-  .main{width:100%;padding:14px;padding-bottom:calc(80px + var(--safe-bot));padding-top:14px;min-height:auto}
+  .main{width:100%;padding:14px;padding-bottom:calc(102px + var(--safe-bot));padding-top:14px;min-height:auto}
   .topbar{display:none}
-  .bottom-nav{display:flex!important;position:fixed;bottom:0;left:0;right:0;z-index:40;padding:6px 8px;padding-bottom:calc(6px + var(--safe-bot));background:rgba(10,15,7,.78);backdrop-filter:blur(22px) saturate(170%);-webkit-backdrop-filter:blur(22px) saturate(170%);border-top:1px solid rgba(245,236,208,.05);justify-content:space-around}
-  .bn-item{flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;padding:6px 3px;border-radius:10px;cursor:pointer;color:var(--cream-faint);font-size:10px;font-weight:500;background:transparent;border:none;font-family:inherit;transition:all .25s var(--ease-out)}
-  .bn-item.active{color:var(--olive-glow)}
-  .bn-item .ic-wrap{width:30px;height:26px;border-radius:8px;display:inline-flex;align-items:center;justify-content:center;transition:all .25s var(--ease-out)}
-  .bn-item.active .ic-wrap{background:linear-gradient(135deg,rgba(168,184,90,.22),rgba(74,93,32,.08));box-shadow:inset 0 1px 0 rgba(245,236,208,.12)}
+  .app.active + .bottom-nav{display:flex!important;position:fixed;bottom:calc(12px + var(--safe-bot));left:16px;right:16px;z-index:40;padding:7px;background:rgba(18,20,19,.58);backdrop-filter:blur(24px) saturate(165%);-webkit-backdrop-filter:blur(24px) saturate(165%);border:1px solid rgba(255,247,216,.11);border-radius:28px;box-shadow:0 18px 40px rgba(0,0,0,.38),inset 0 1px 0 rgba(255,255,255,.08);justify-content:space-around}
+  .bn-item{flex:1;min-height:48px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;padding:7px 3px;border-radius:22px;cursor:pointer;color:rgba(255,247,216,.48);font-size:10px;font-weight:500;background:transparent;border:1px solid transparent;font-family:inherit;transition:transform .22s var(--ease-out),background .22s var(--ease-out),color .22s var(--ease-out),border-color .22s var(--ease-out)}
+  .bn-item.active{color:var(--cream);background:rgba(255,247,216,.08);border-color:rgba(230,201,137,.12);box-shadow:inset 0 1px 0 rgba(255,255,255,.08)}
+  .bn-item .ic-wrap{width:30px;height:22px;border-radius:999px;display:inline-flex;align-items:center;justify-content:center;transition:all .22s var(--ease-out)}
+  .bn-item.active .ic-wrap{color:var(--gold-300)}
 
-  .hero{padding:18px 16px}
+  .hero{padding:22px 16px}
   .hero-text .tagline{font-size:9px;margin-bottom:10px;padding:3px 12px;letter-spacing:.22em}
-  .hero-couple{font-size:28px;margin-bottom:8px}
+  .hero-couple{font-size:32px;margin-bottom:8px}
   .hero-couple .sep{font-size:21px;vertical-align:2px}
   .hero-meta{font-size:13px;gap:8px}
   .hero-meta .pill{font-size:11px;padding:2px 10px}
@@ -401,7 +494,7 @@ textarea.input{resize:vertical;min-height:60px}
   .day-manage-btn{padding:0 10px;font-size:10px}
   .chip{padding:5px 10px;font-size:10px}
 
-  .exp-card{padding:11px 12px;gap:10px}
+  .exp-card{padding:0;gap:0}
   .exp-name{font-size:14px;font-weight:600}
   .exp-meta{font-size:11px;gap:5px}
   .exp-amount{font-size:14px}.exp-amount .u{font-size:11px}
@@ -420,13 +513,33 @@ textarea.input{resize:vertical;min-height:60px}
   .tl-time{font-size:15px;min-width:54px}
   .tl-name{font-size:14px}
 
-  .fab{right:14px;bottom:calc(74px + var(--safe-bot));width:46px;height:46px}
+  .insight-grid{grid-template-columns:1fr}
+  .expense-toolbar{grid-template-columns:1fr;gap:8px}
+  .exp-card-inner{grid-template-columns:8px minmax(0,1fr) auto;gap:8px;padding:8px 10px}
+  .exp-name-row{gap:6px}
+  .exp-meta{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:block}
+  .exp-inline-money{gap:7px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:10px;margin-top:1px}
+  .exp-right{grid-column:auto;display:flex;flex-direction:column;justify-content:center;align-items:flex-end;text-align:right;gap:3px;min-width:76px}
+  .exp-money-grid{display:none}
+  .deadline-pill{font-size:9px;padding:1px 6px}
+  .tl-day-name{font-size:21px}
+  .tl-day-mgr-item{grid-template-columns:30px minmax(0,1fr);gap:8px}
+  .tl-day-mgr-item .input[type="date"],.tl-day-mgr-time,.tl-day-mgr-location,.tl-day-mgr-note,.tl-day-mgr-item .day-mgr-actions{grid-column:2}
+  .fab{right:18px;bottom:calc(106px + var(--safe-bot));width:44px;min-width:0;height:44px;border-radius:50%;padding:0;gap:0}
+  .fab .fab-label{display:none}
 
-  .modal{padding:18px}
-  .modal h2{font-size:17px;margin-bottom:14px}
+  .modal-bd{align-items:flex-end;padding:0;padding-top:calc(18px + var(--safe-top))}
+  .modal{max-width:none;max-height:88vh;border-radius:24px 24px 0 0;padding:20px 18px calc(18px + var(--safe-bot));animation:sheetIn .28s var(--ease-out)}
+  @keyframes sheetIn{from{opacity:0;transform:translateY(32px)}to{opacity:1;transform:translateY(0)}}
+  .modal h2{font-size:24px;margin-bottom:14px}
+  .modal-actions{position:sticky;bottom:calc(-18px - var(--safe-bot));margin:18px -18px calc(-18px - var(--safe-bot));padding:12px 18px calc(12px + var(--safe-bot));background:linear-gradient(180deg,rgba(16,24,12,.78),rgba(7,16,6,.96));border-top:1px solid rgba(234,219,154,.1)}
+  .modal-actions .btn{min-height:44px}
 }
 @media (min-width:721px) and (max-width:980px){
   .stats-grid{grid-template-columns:repeat(2,1fr)}
+}
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation-duration:.001ms!important;animation-iteration-count:1!important;scroll-behavior:auto!important;transition-duration:.001ms!important}
 }
 </style>
 </head>
@@ -469,21 +582,28 @@ textarea.input{resize:vertical;min-height:60px}
       <img src="logo.png" class="logo-img login-logo" alt="KT" onerror="this.style.display='none';this.nextElementSibling.style.display='inline-flex'"/>
       <div class="logo-fallback login-logo-fb"><span>kt</span></div>
     </div>
-    <div class="login-title">
-      <div class="login-couple">Khanh <span class="sep">❦</span> Tú</div>
-      <div class="login-tagline">10 Years · Since 2016</div>
-      <div class="login-subtitle">Wedding · Planner</div>
-      <div class="login-date" id="loginDateLine">— · — · —</div>
-    </div>
+	    <div class="login-title">
+	      <div class="login-couple">Khanh <span class="sep">❦</span> Tú</div>
+	      <div class="login-tagline"></div>
+	      <div class="login-subtitle">10 Years · Since 2016</div>
+	      <div class="login-date" id="loginDateLine">— · — · —</div>
+	    </div>
     <div class="login-form">
-      <div class="label" style="text-align:center;margin-bottom:10px">Đăng nhập quản trị</div>
+      <div class="label" style="text-align:center;margin-bottom:10px">Nhập mật khẩu nếu cần</div>
       <input type="password" class="input" id="loginPass" placeholder="Mật khẩu" autocomplete="off"/>
       <button type="button" class="btn btn-primary" id="btnLogin" style="width:100%;padding:12px;margin-top:10px">Đăng nhập</button>
-      <button type="button" class="btn" id="btnReadonly" style="width:100%;padding:11px;margin-top:8px;gap:8px">
-        <svg class="ic ic-sm"><use href="#i-eye"/></svg> Xem không cần đăng nhập
+      <button type="button" class="btn" id="btnViewer" style="width:100%;padding:11px;margin-top:8px;gap:8px">
+        <svg class="ic ic-sm"><use href="#i-eye"/></svg> Chế độ xem
+      </button>
+      <button type="button" class="btn" id="btnPublic" style="width:100%;padding:11px;margin-top:8px;gap:8px">
+        <svg class="ic ic-sm"><use href="#i-calendar"/></svg> Lịch trình cưới
       </button>
     </div>
   </div>
+</div>
+
+<div class="app-loader is-hidden" id="appLoader">
+  <div class="app-loader-card"><span class="app-loader-mark"></span><span>Đang mở</span></div>
 </div>
 
 <!-- APP -->
@@ -531,6 +651,7 @@ textarea.input{resize:vertical;min-height:60px}
       <div class="n num" id="mobileDays">—</div>
       <div class="l">ngày</div>
     </div>
+    <button type="button" class="btn btn-ghost btn-icon hidden" id="btnLogoutMobileHead" title="Thoát"><svg class="ic ic-md"><use href="#i-logout"/></svg></button>
   </div>
 
   <main class="main">
@@ -552,7 +673,7 @@ textarea.input{resize:vertical;min-height:60px}
     <div id="pageRoot"></div>
   </main>
 
-  <button type="button" class="fab" id="fab"><svg class="ic ic-md"><use href="#i-plus"/></svg></button>
+  <button type="button" class="fab" id="fab"><svg class="ic ic-md"><use href="#i-plus"/></svg><span class="fab-label" id="fabLabel">Thêm</span></button>
 </div>
 
 <div class="bottom-nav" id="bottomNav">
@@ -604,18 +725,58 @@ const STATIC_TODOS = {
   c7:'In thiệp cưới',c8:'Đặt xe hoa',c9:'Đặt hoa cưới · trang trí',c10:'Lên danh sách khách mời'
 };
 const COLORS = ['#8fb84a','#c9a961','#a8b85a','#7a9a8e','#d4a942','#c96b5a','#6b8338','#e6c989'];
+const DATA_KEYS = ['config','budget','fund','gift_tables','gift_guests','contacts','checklist','timeline','timeline_days'];
+const EXPENSE_STATUS = {
+  pending: { label: 'Chưa đặt', cls: 'status-pending', order: 0 },
+  booked: { label: 'Đã đặt', cls: 'status-booked', order: 1 },
+  deposit: { label: 'Đã cọc', cls: 'status-deposit', order: 2 },
+  done: { label: 'Hoàn tất', cls: 'status-done', order: 3 }
+};
+const PAGE_CONFIG = {
+  dashboard: { label: 'Tổng quan', crumb: 'DASHBOARD', icon: '#i-home', short: 'Tổng' },
+  expense: { label: 'Chi tiêu', crumb: 'EXPENSES', icon: '#i-coin', short: 'Chi' },
+  fund: { label: 'Quỹ tiền', crumb: 'FUND', icon: '#i-wallet', short: 'Quỹ' },
+  gift: { label: 'Tiền mừng', crumb: 'GIFTS', icon: '#i-gift', short: 'Mừng' },
+  todo: { label: 'Việc cần làm', crumb: 'TO-DO', icon: '#i-check', short: 'Việc' },
+  contact: { label: 'Liên hệ', crumb: 'CONTACTS', icon: '#i-phone', short: 'Liên hệ' },
+  timeline: { label: 'Lịch trình', crumb: 'TIMELINE', icon: '#i-calendar', short: 'Lịch' }
+};
+const FAB_LABELS = {
+  expense: 'Chi tiêu',
+  fund: 'Quỹ',
+  gift: 'Bàn',
+  todo: 'Việc',
+  contact: 'Liên hệ',
+  timeline: 'Sự kiện'
+};
 
 let role = null;
 let currentPage = 'dashboard';
 let currentDay = 'all';
 let currentFilter = 'all';
-let DATA = { config:{}, budget:{}, fund:{}, gift_tables:{}, gift_guests:{}, contacts:{}, checklist:{}, timeline:{} };
+let currentTimelineDay = 'all';
+let expenseSearch = '';
+let expenseSort = 'deadline';
+let DATA = { config:{}, budget:{}, fund:{}, gift_tables:{}, gift_guests:{}, contacts:{}, checklist:{}, timeline:{}, timeline_days:{} };
 let editingId = null;
 let pendingImg = '';
 let giftSearch = '';
 let fbReady = false;
+let loadedKeys = {};
 
 const FAB_PAGES = ['expense','fund','gift','todo','contact','timeline'];
+
+function isAdminRole() {
+  return role === 'admin' || role === 'super';
+}
+function getPagesForRole(r = role) {
+  if (r === 'public') return ['dashboard', 'timeline', 'contact'];
+  if (r === 'viewer') return ['dashboard', 'expense', 'todo', 'timeline', 'contact'];
+  return ['dashboard', 'expense', 'fund', 'gift', 'todo', 'timeline', 'contact'];
+}
+function canOpenPage(page, r = role) {
+  return getPagesForRole(r).includes(page);
+}
 
 // ============== UTILS ==============
 const $ = s => document.querySelector(s);
@@ -682,13 +843,90 @@ function getDayColor(id) {
   const days = (DATA.config && DATA.config.days) || DEFAULT_DAYS;
   return (days[id] && days[id].color) || '#a8b85a';
 }
+function expensePaid(b) {
+  const total = Number(b && b.total) || 0;
+  const deposit = Number(b && b.deposit) || 0;
+  return (b && b.status) === 'done' ? total : deposit;
+}
+function expenseRemaining(b) {
+  const total = Number(b && b.total) || 0;
+  return Math.max(0, total - expensePaid(b));
+}
+function expenseStatusMeta(status) {
+  return EXPENSE_STATUS[status] || EXPENSE_STATUS.pending;
+}
+function dateSortValue(iso) {
+  if (!iso) return Number.POSITIVE_INFINITY;
+  const d = new Date(iso + 'T00:00:00');
+  return isNaN(d) ? Number.POSITIVE_INFINITY : d.getTime();
+}
+function deadlineDiff(iso) {
+  if (!iso) return null;
+  const d = new Date(iso + 'T00:00:00');
+  if (isNaN(d)) return null;
+  const today = new Date(); today.setHours(0,0,0,0);
+  return Math.round((d - today) / 86400000);
+}
+function getChecklistItems() {
+  const items = [];
+  Object.entries(STATIC_TODOS).forEach(([k, txt]) => {
+    const v = DATA.checklist && DATA.checklist[k];
+    if (v && typeof v === 'object' && v.deleted) return;
+    const done = v === true || (v && typeof v === 'object' && v.done);
+    const deadline = v && typeof v === 'object' ? v.deadline : null;
+    const text = v && typeof v === 'object' && v.text ? v.text : txt;
+    items.push({ id: k, text, done, deadline, static: true, order: v && typeof v === 'object' ? v.order : 0 });
+  });
+  Object.entries(DATA.checklist || {}).forEach(([k, v]) => {
+    if (k.startsWith('c_') && v && typeof v === 'object' && !v.deleted) {
+      items.push({ id: k, text: v.text || '', done: !!v.done, deadline: v.deadline, static: false, order: v.order || 0 });
+    }
+  });
+  return items;
+}
+function isWeddingDayName(name) {
+  return String(name || '').trim().toLowerCase() === 'ngày cưới';
+}
+function timelineDayOrderValue(day, fallback = 0) {
+  const n = Number(day && day.order);
+  return Number.isFinite(n) ? n : fallback;
+}
+function getTimelineDaysSorted() {
+  const real = DATA.timeline_days || {};
+  const wd = (DATA.config && DATA.config.wedding && DATA.config.wedding.date) || '2026-09-13';
+  const entries = Object.entries(real).filter(([,d]) => d && typeof d === 'object');
+  const hasDefault = entries.some(([id,d]) => id === 'default' || isWeddingDayName(d.name));
+  if (!hasDefault) {
+    const minOrder = entries.length ? Math.min(...entries.map(([,d], idx) => timelineDayOrderValue(d, idx))) : 0;
+    entries.push(['default', { name: 'Ngày cưới', date: wd, time: '', location: '', note: '', color: '#d0b35f', order: entries.length ? minOrder - 1 : 0, virtual: true }]);
+  }
+  return entries.sort((a,b) =>
+    timelineDayOrderValue(a[1], 0) - timelineDayOrderValue(b[1], 0)
+    || (a[1].date||'').localeCompare(b[1].date||'')
+    || (a[1].name||'').localeCompare(b[1].name||'')
+  );
+}
+function getDefaultTimelineDayId() {
+  const real = DATA.timeline_days || {};
+  if (real.default && typeof real.default === 'object') return 'default';
+  const named = Object.entries(real).find(([,d]) => d && typeof d === 'object' && isWeddingDayName(d.name));
+  if (named) return named[0];
+  return 'default';
+}
+function effectiveEventDayId(e) {
+  return (e && e.dayId) || getDefaultTimelineDayId();
+}
+function timelineDayInfo(id) {
+  const found = getTimelineDaysSorted().find(([did]) => did === id);
+  return found ? found[1] : getTimelineDaysSorted()[0][1];
+}
 
 // ============== TOAST ==============
 let toastTimer;
 function toast(msg, type='') {
   const t = $('#toast');
   t.textContent = msg;
-  t.className = 'toast glass show ' + type;
+  t.className = 'toast glass show ' + (type || 'success');
   clearTimeout(toastTimer);
   toastTimer = setTimeout(() => t.classList.remove('show'), 2500);
 }
@@ -698,13 +936,15 @@ function initFirebase() {
   if (!window.fb) { setTimeout(initFirebase, 80); return; }
   fbReady = true;
   const { db, ref, onValue } = window.fb;
-  ['config','budget','fund','gift_tables','gift_guests','contacts','checklist','timeline'].forEach(k => {
+  DATA_KEYS.forEach(k => {
     onValue(ref(db, k), snap => {
       DATA[k] = snap.val() || {};
+      loadedKeys[k] = true;
       if (k === 'config') {
         if (!DATA.config.wedding) DATA.config.wedding = { date: '2026-09-13', name: 'Khanh & Tú' };
         if (!DATA.config.days) DATA.config.days = DEFAULT_DAYS;
-        if (!DATA.config.passwords) DATA.config.passwords = { admin: 'wedding2025', super: '999999' };
+        if (!DATA.config.passwords) DATA.config.passwords = { admin: 'wedding2025', super: '999999', viewer: '0000' };
+        if (!DATA.config.passwords.viewer) DATA.config.passwords.viewer = '0000';
         updateHeader();
       }
       if (role) render();
@@ -741,8 +981,19 @@ function doLogin() {
   else if (pass === superPw) { role = 'super'; localStorage.setItem(SK, role); enterApp(); }
   else toast('Mật khẩu không đúng', 'error');
 }
-function enterReadonly() { role = 'readonly'; localStorage.setItem(SK, role); enterApp(); }
+function enterViewer() {
+  const pass = $('#loginPass').value.trim();
+  const viewerPw = (DATA.config && DATA.config.passwords && DATA.config.passwords.viewer) || '0000';
+  if (!pass) { toast('Vui lòng nhập mật khẩu Chế độ xem', 'error'); return; }
+  if (pass !== viewerPw) { toast('Mật khẩu Chế độ xem không đúng', 'error'); return; }
+  role = 'viewer';
+  localStorage.setItem(SK, role);
+  enterApp();
+}
+function enterPublic() { role = 'public'; localStorage.setItem(SK, role); enterApp(); }
 function showLogin() {
+  const loader = $('#appLoader');
+  if (loader) loader.classList.add('is-hidden');
   $('#app').classList.remove('active');
   $('#loginScreen').style.display = 'flex';
   $('#loginPass').value = '';
@@ -751,45 +1002,75 @@ function showLogin() {
 function logout() { localStorage.removeItem(SK); role = null; showLogin(); }
 
 function enterApp() {
-  $('#loginScreen').style.display = 'none';
-  $('#app').classList.add('active');
-  updateRoleUI();
-  goto('dashboard');
+  const loader = $('#appLoader');
+  if (loader) loader.classList.remove('is-hidden');
+  setTimeout(() => {
+    $('#loginScreen').style.display = 'none';
+    $('#app').classList.add('active');
+    updateRoleUI();
+    goto('dashboard');
+    requestAnimationFrame(() => setTimeout(() => loader && loader.classList.add('is-hidden'), 180));
+  }, 420);
 }
 function updateRoleUI() {
-  const isRO = role === 'readonly';
-  $('#readonlyBanner').classList.toggle('hidden', !isRO);
+  const isRO = !isAdminRole();
+  const isPublic = role === 'public';
+  $('#readonlyBanner').classList.toggle('hidden', role !== 'viewer');
+  if (role === 'viewer') {
+    $('#readonlyBanner').innerHTML = `<svg class="ic"><use href="#i-eye"/></svg> ${isPublic ? 'Lịch trình cưới · không hiển thị thông tin nội bộ' : 'Chế độ xem · chỉ xem, không thể chỉnh sửa'} <button type="button" id="btnGoLogin">Đăng nhập</button>`;
+  }
   const pill = $('#rolePill');
-  if (isRO) {
-    pill.className = 'role-pill readonly';
-    pill.innerHTML = '<span class="dot"></span> Chỉ xem';
-  } else {
+  if (isAdminRole()) {
     pill.className = 'role-pill';
     pill.innerHTML = `<span class="dot"></span> ${role === 'super' ? 'Super' : 'Admin'}`;
+  } else {
+    pill.className = 'role-pill readonly';
+    pill.innerHTML = `<span class="dot"></span> ${isPublic ? 'Lịch trình' : 'Chế độ xem'}`;
   }
+  $('#btnSettingsSide').classList.toggle('hidden', !isAdminRole());
+  $('#btnSettingsTop').classList.toggle('hidden', !isAdminRole());
+  $('#btnLogoutMobileHead').classList.toggle('hidden', isAdminRole());
+  syncRoleNav();
+}
+
+function syncRoleNav() {
+  const pages = getPagesForRole();
+  if (!pages.includes(currentPage)) currentPage = 'dashboard';
+  $$('.nav-item').forEach(n => {
+    const idx = pages.indexOf(n.dataset.page);
+    n.classList.toggle('hidden', idx === -1);
+    n.style.order = idx === -1 ? 99 : idx;
+  });
+  const bottom = $('#bottomNav');
+  if (!bottom) return;
+  let bottomPages;
+  if (isAdminRole()) bottomPages = ['dashboard', 'expense', 'gift', 'todo'];
+  else bottomPages = pages;
+  bottom.innerHTML = bottomPages.map(p => {
+    const cfg = PAGE_CONFIG[p];
+    return `<button type="button" class="bn-item ${currentPage===p?'active':''}" data-page="${p}"><span class="ic-wrap"><svg class="ic"><use href="${cfg.icon}"/></svg></span>${cfg.short}</button>`;
+  }).join('') + (isAdminRole() ? `<button type="button" class="bn-item" id="btnMore"><span class="ic-wrap"><svg class="ic"><use href="#i-more"/></svg></span>Khác</button>` : '');
 }
 
 // ============== NAVIGATION ==============
 function goto(page) {
+  if (!canOpenPage(page)) page = 'dashboard';
   currentPage = page;
+  syncRoleNav();
   $$('.nav-item').forEach(n => n.classList.toggle('active', n.dataset.page === page));
   $$('.bn-item').forEach(n => n.classList.toggle('active', n.dataset.page === page));
-  const titles = {
-    dashboard:['Tổng quan','DASHBOARD'], expense:['Chi tiêu','EXPENSES'],
-    fund:['Quỹ tiền','FUND'], gift:['Tiền mừng','GIFTS'],
-    todo:['Việc cần làm','TO-DO'], contact:['Liên hệ','CONTACTS'],
-    timeline:['Lịch trình','TIMELINE']
-  };
-  const tc = titles[page] || ['',''];
-  $('#pageTitle').textContent = tc[0];
-  $('#crumb').textContent = `KT WEDDING · ${tc[1]}`;
-  $('#fab').classList.toggle('show', FAB_PAGES.includes(page) && role !== 'readonly');
+  const tc = PAGE_CONFIG[page] || { label:'', crumb:'' };
+  $('#pageTitle').textContent = tc.label;
+  $('#crumb').textContent = `KT WEDDING · ${tc.crumb}`;
+  $('#fab').classList.toggle('show', FAB_PAGES.includes(page) && isAdminRole());
+  const fabLabel = $('#fabLabel');
+  if (fabLabel) fabLabel.textContent = FAB_LABELS[page] || 'Thêm';
   window.scrollTo({ top: 0, behavior: 'smooth' });
   render();
 }
 
 function fabClick() {
-  if (role === 'readonly') { toast('Chế độ chỉ xem', 'error'); return; }
+  if (!isAdminRole()) { toast('Chế độ chỉ xem', 'error'); return; }
   if (currentPage === 'expense') openExpenseModal();
   else if (currentPage === 'fund') openFundModal();
   else if (currentPage === 'gift') openGiftTableModal();
@@ -799,12 +1080,20 @@ function fabClick() {
 }
 
 function openMore() {
+  if (!isAdminRole()) {
+    showModal(`
+      <h2>Thoát</h2>
+      <button type="button" class="qa-more" data-act="logout"><span class="ic-wrap"><svg class="ic"><use href="#i-logout"/></svg></span><span>Thoát</span></button>
+      <div class="modal-actions"><button type="button" class="btn" style="flex:1" data-act="close">Đóng</button></div>
+    `, 340);
+    return;
+  }
   showModal(`
     <h2>Thêm</h2>
     <div style="display:flex;flex-direction:column;gap:6px">
-      <button type="button" class="qa-more" data-act="page-fund"><span class="ic-wrap"><svg class="ic"><use href="#i-wallet"/></svg></span><span>Quỹ tiền</span></button>
-      <button type="button" class="qa-more" data-act="page-contact"><span class="ic-wrap"><svg class="ic"><use href="#i-phone"/></svg></span><span>Liên hệ</span></button>
-      <button type="button" class="qa-more" data-act="page-timeline"><span class="ic-wrap"><svg class="ic"><use href="#i-calendar"/></svg></span><span>Lịch trình</span></button>
+	      <button type="button" class="qa-more" data-act="page-fund"><span class="ic-wrap"><svg class="ic"><use href="#i-wallet"/></svg></span><span>Quỹ tiền</span></button>
+	      <button type="button" class="qa-more" data-act="page-timeline"><span class="ic-wrap"><svg class="ic"><use href="#i-calendar"/></svg></span><span>Lịch trình</span></button>
+	      <button type="button" class="qa-more" data-act="page-contact"><span class="ic-wrap"><svg class="ic"><use href="#i-phone"/></svg></span><span>Liên hệ</span></button>
       <button type="button" class="qa-more" data-act="settings"><span class="ic-wrap"><svg class="ic"><use href="#i-settings"/></svg></span><span>Cài đặt</span></button>
       <button type="button" class="qa-more" data-act="logout"><span class="ic-wrap"><svg class="ic"><use href="#i-logout"/></svg></span><span>Đăng xuất</span></button>
     </div>
@@ -815,7 +1104,12 @@ function openMore() {
 // ============== RENDER ==============
 function render() {
   if (!role) return;
+  if (!canOpenPage(currentPage)) currentPage = 'dashboard';
   const root = $('#pageRoot');
+  if (!DATA_KEYS.every(k => loadedKeys[k])) {
+    root.innerHTML = renderLoading();
+    return;
+  }
   if (currentPage === 'dashboard') root.innerHTML = renderDashboard();
   else if (currentPage === 'expense') root.innerHTML = renderExpense();
   else if (currentPage === 'fund') root.innerHTML = renderFund();
@@ -825,7 +1119,151 @@ function render() {
   else if (currentPage === 'timeline') root.innerHTML = renderTimeline();
 }
 
+function renderLoading() {
+  return `
+    <div class="page">
+      <div class="glass loading-state">
+        <div class="loading-ring"></div>
+        <h3>Đang tải dữ liệu cưới</h3>
+        <p>Đang đồng bộ Firebase Realtime Database...</p>
+      </div>
+    </div>
+  `;
+}
+
+function collectDashboardInsights() {
+  const items = [];
+  Object.entries(DATA.budget || {}).forEach(([id, b]) => {
+    const rem = expenseRemaining(b);
+    const diff = deadlineDiff(b.deadline);
+    if (b.status !== 'done' && b.deadline && diff != null && diff < 0) {
+      items.push({ tone:'danger', icon:'#i-clock', sort:0, date:dateSortValue(b.deadline), title:b.name || 'Khoản chi quá hạn', meta:`Quá hạn ${Math.abs(diff)} ngày, còn ${fmtMoney(rem)} ${unitMoney(rem)} cần xử lý` });
+    } else if (b.status !== 'done' && b.deadline && diff != null && diff <= 7) {
+      items.push({ tone:'warning', icon:'#i-clock', sort:1, date:dateSortValue(b.deadline), title:b.name || 'Deadline sắp tới', meta:diff === 0 ? 'Hạn thanh toán hôm nay' : `Còn ${diff} ngày đến hạn thanh toán` });
+    }
+    if (b.status !== 'done' && rem > 0 && (b.status === 'deposit' || b.status === 'booked')) {
+      const label = b.status === 'booked' ? 'Đã đặt, chưa thanh toán đủ' : 'Đã cọc, còn phải trả';
+      items.push({ tone:b.status === 'booked' ? 'warning' : 'success', icon:'#i-coin', sort:2, date:dateSortValue(b.deadline), title:b.name || label, meta:`${label}: ${fmtMoney(rem)} ${unitMoney(rem)}` });
+    }
+  });
+  getChecklistItems().forEach(i => {
+    if (i.done || !i.deadline) return;
+    const diff = deadlineDiff(i.deadline);
+    if (diff == null) return;
+    if (diff < 0) items.push({ tone:'danger', icon:'#i-check', sort:0, date:dateSortValue(i.deadline), title:i.text, meta:`Việc cần làm quá hạn ${Math.abs(diff)} ngày` });
+    else if (diff <= 7) items.push({ tone:'warning', icon:'#i-check', sort:1, date:dateSortValue(i.deadline), title:i.text, meta:diff === 0 ? 'Việc cần hoàn tất hôm nay' : `Còn ${diff} ngày để hoàn tất` });
+  });
+  return items
+    .sort((a,b) => a.sort - b.sort || a.date - b.date)
+    .slice(0, 7);
+}
+
+function relativeDayLabel(iso) {
+  const diff = deadlineDiff(iso);
+  if (diff == null) return '';
+  if (diff < 0) return `Đã diễn ra ${Math.abs(diff)} ngày`;
+  if (diff === 0) return 'Hôm nay';
+  return `Còn ${diff} ngày`;
+}
+
+function renderPublicDashboard() {
+  const wd = (DATA.config.wedding && DATA.config.wedding.date) || '2026-09-13';
+  const nm = (DATA.config.wedding && DATA.config.wedding.name) || 'Khanh & Tú';
+  const parts = nm.split(/\s*[&❦]\s*/);
+  const nmHtml = parts.length===2 ? `${esc(parts[0])} <span class="sep">❦</span> ${esc(parts[1])}` : esc(nm);
+  const days = getTimelineDaysSorted();
+  return `
+    <div class="page">
+      <div class="glass hero">
+        <div class="hero-text">
+          <div class="tagline"><span class="dot">✦</span> 10 Years · Since 2016 <span class="dot">✦</span></div>
+          <div class="hero-couple">${nmHtml}</div>
+          <div class="hero-meta">
+            <span>${fmtDateFull(wd)}</span>
+            <span class="pill">Còn ${daysTo(wd)} ngày</span>
+          </div>
+        </div>
+      </div>
+      <div class="glass pb-wrap progress-section">
+        <div class="pb-head">
+          <h2>Các ngày chính</h2>
+          <span class="ornament">✦ ✦ ✦</span>
+        </div>
+        <div class="public-day-grid">
+          ${days.map(([id, d]) => `
+            <div class="glass public-day-card">
+              <div class="public-day-top">
+                <span class="tl-day-dot" style="background:${d.color};color:${d.color}"></span>
+                <div>
+                  <div class="public-day-name">${esc(d.name || 'Ngày cưới')}</div>
+                  ${d.date ? `<div class="public-day-date">${fmtDateFull(d.date)}</div>` : ''}
+                </div>
+              </div>
+              <div class="public-day-detail">
+                ${d.time ? `<div><svg class="ic ic-sm"><use href="#i-clock"/></svg> ${esc(d.time)}</div>` : ''}
+                ${d.location ? `<div><svg class="ic ic-sm"><use href="#i-mappin"/></svg> ${esc(d.location)}</div>` : ''}
+                ${d.note ? `<div>${esc(d.note)}</div>` : ''}
+                ${d.date ? `<div class="text-gold">${relativeDayLabel(d.date)}</div>` : ''}
+              </div>
+            </div>
+          `).join('')}
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+function renderViewerDashboard() {
+  const wd = (DATA.config.wedding && DATA.config.wedding.date) || '2026-09-13';
+  const nm = (DATA.config.wedding && DATA.config.wedding.name) || 'Khanh & Tú';
+  const parts = nm.split(/\s*[&❦]\s*/);
+  const nmHtml = parts.length===2 ? `${esc(parts[0])} <span class="sep">❦</span> ${esc(parts[1])}` : esc(nm);
+  const budgets = Object.values(DATA.budget || {});
+  const totalSpent = budgets.reduce((a,x)=>a+expensePaid(x), 0);
+  const totalAll = budgets.reduce((a,x)=>a+(Number(x.total)||0), 0);
+  const remain = budgets.filter(b=>b.status!=='done').reduce((a,x)=>a+expenseRemaining(x), 0);
+  const checklistItems = getChecklistItems();
+  const todoDone = checklistItems.filter(i => i.done).length;
+  const todoTotal = checklistItems.length;
+  const todoPct = todoTotal > 0 ? Math.round(todoDone/todoTotal*100) : 0;
+  const insights = collectDashboardInsights();
+  const dayBreakdown = getDaysSorted().map(([id, info]) => {
+    const items = budgets.filter(b => b.day === id);
+    const total = items.reduce((a,x)=>a+(Number(x.total)||0), 0);
+    const paid = items.reduce((a,x)=>a+expensePaid(x), 0);
+    return { id, info, items, total, rem: total - paid };
+  });
+  return `
+    <div class="page">
+      <div class="glass hero">
+        <div class="hero-text">
+          <div class="tagline"><span class="dot">✦</span> Wedding Plan <span class="dot">✦</span></div>
+          <div class="hero-couple">${nmHtml}</div>
+          <div class="hero-meta"><span>${fmtDateFull(wd)}</span><span class="pill">${relativeDayLabel(wd)}</span></div>
+        </div>
+      </div>
+      <div class="glass viewer-note">Chế độ xem chỉ hiển thị thông tin kế hoạch cần tham khảo, không hiển thị quỹ tiền và tiền mừng.</div>
+      <div class="stats-grid">
+        <div class="glass stat"><div class="stat-head"><svg class="ic ic-sm"><use href="#i-stack"/></svg><span class="stat-label">Tổng dự kiến</span></div><div class="stat-value">${moneyHtml(totalAll)}</div><div class="stat-sub">${budgets.length} hạng mục</div></div>
+        <div class="glass stat"><div class="stat-head"><svg class="ic ic-sm"><use href="#i-coin"/></svg><span class="stat-label">Đã thanh toán/cọc</span></div><div class="stat-value gradient-gold">${moneyHtml(totalSpent)}</div><div class="stat-sub">Theo trạng thái chi tiêu</div></div>
+        <div class="glass stat"><div class="stat-head"><svg class="ic ic-sm"><use href="#i-hourglass"/></svg><span class="stat-label">Còn cần xử lý</span></div><div class="stat-value text-warning">${moneyHtml(remain)}</div><div class="stat-sub">${budgets.filter(b=>b.status!=='done').length} hạng mục</div></div>
+        <div class="glass stat"><div class="stat-head"><svg class="ic ic-sm"><use href="#i-check"/></svg><span class="stat-label">Việc cần làm</span></div><div class="stat-value num">${todoPct}%</div><div class="stat-sub">${todoDone}/${todoTotal} hoàn tất</div></div>
+      </div>
+      <div class="glass insight-panel">
+        <div class="insight-head"><div><h2>Việc cần xử lý</h2><p>Deadline và thanh toán sắp tới</p></div><span class="status-pill status-booked"><span class="d"></span>${insights.length} mục</span></div>
+        ${insights.length === 0 ? '<div class="insight-item success"><span class="insight-icon"><svg class="ic ic-sm"><use href="#i-check"/></svg></span><div><div class="insight-title">Không có mục gấp</div><div class="insight-meta">Các deadline chính đang ổn.</div></div></div>' : `<div class="insight-list">${insights.map(item => `<div class="insight-item ${item.tone}"><span class="insight-icon"><svg class="ic ic-sm"><use href="${item.icon}"/></svg></span><div><div class="insight-title">${esc(item.title)}</div><div class="insight-meta">${esc(item.meta)}</div></div></div>`).join('')}</div>`}
+      </div>
+      <div class="glass day-breakdown">
+        <div class="pb-head"><h2>Chi tiêu theo ngày</h2><span class="ornament">✦ ✦ ✦</span></div>
+        ${dayBreakdown.map(d => `<div class="dex-row"><div class="dex-left"><div class="dex-dot" style="color:${d.info.color};background:${d.info.color}"></div><div class="dex-info"><div class="dex-name">${esc(d.info.name)}</div><div class="dex-count">${d.items.length} hạng mục</div></div></div><div class="dex-right"><div class="dex-total">${moneyHtml(d.total)}</div><div class="dex-rem ${d.rem===0?'done':''}">${d.rem===0?'Đã thanh toán đủ':'Còn '+fmtMoney(d.rem)+' '+unitMoney(d.rem)}</div></div></div>`).join('')}
+      </div>
+    </div>
+  `;
+}
+
 function renderDashboard() {
+  if (role === 'public') return renderPublicDashboard();
+  if (role === 'viewer') return renderViewerDashboard();
   const wd = (DATA.config.wedding && DATA.config.wedding.date) || '2026-09-13';
   const nm = (DATA.config.wedding && DATA.config.wedding.name) || 'Khanh & Tú';
   const parts = nm.split(/\s*[&❦]\s*/);
@@ -835,29 +1273,16 @@ function renderDashboard() {
   const budgets = Object.values(DATA.budget || {});
   const funds = Object.values(DATA.fund || {});
   const guests = Object.values(DATA.gift_guests || {});
-  const checklist = DATA.checklist || {};
+  const checklistItems = getChecklistItems();
 
   const totalFund = funds.reduce((a,x)=>a+(Number(x.amount)||0), 0);
-  const totalSpent = budgets.reduce((a,x)=>a+((Number(x.deposit)||0) + (x.status==='done' ? (Number(x.total)||0)-(Number(x.deposit)||0) : 0)), 0);
+  const totalSpent = budgets.reduce((a,x)=>a+expensePaid(x), 0);
   const totalAll = budgets.reduce((a,x)=>a+(Number(x.total)||0), 0);
-  const remain = budgets.filter(b=>b.status!=='done').reduce((a,x)=>a+((Number(x.total)||0)-(Number(x.deposit)||0)), 0);
+  const remain = budgets.filter(b=>b.status!=='done').reduce((a,x)=>a+expenseRemaining(x), 0);
 
   const payPct = totalAll > 0 ? Math.round(totalSpent/totalAll*100) : 0;
-  const staticTotal = Object.keys(STATIC_TODOS).filter(k => {
-    const v = checklist[k];
-    return !(v && typeof v === 'object' && v.deleted);
-  }).length;
-  const staticDone = Object.keys(STATIC_TODOS).filter(k => {
-    const v = checklist[k];
-    if (v == null) return false;
-    if (typeof v === 'boolean') return v;
-    if (v.deleted) return false;
-    return !!v.done;
-  }).length;
-  const dynItems = Object.entries(checklist).filter(([k,v]) => k.startsWith('c_') && v && typeof v === 'object' && !v.deleted);
-  const dynDone = dynItems.filter(([,v]) => v.done).length;
-  const todoDone = staticDone + dynDone;
-  const todoTotal = staticTotal + dynItems.length;
+  const todoDone = checklistItems.filter(i => i.done).length;
+  const todoTotal = checklistItems.length;
   const todoPct = todoTotal > 0 ? Math.round(todoDone/todoTotal*100) : 0;
 
   const guestTotal = guests.length;
@@ -868,10 +1293,11 @@ function renderDashboard() {
   const dayBreakdown = daysSorted.map(([id, info]) => {
     const items = budgets.filter(b => b.day === id);
     const total = items.reduce((a,x)=>a+(Number(x.total)||0), 0);
-    const paid = items.reduce((a,x)=>a+((Number(x.deposit)||0)+(x.status==='done' ? (Number(x.total)||0)-(Number(x.deposit)||0) : 0)), 0);
+    const paid = items.reduce((a,x)=>a+expensePaid(x), 0);
     const rem = total - paid;
     return { id, info, items, total, paid, rem };
   });
+  const insights = collectDashboardInsights();
 
   return `
     <div class="page">
@@ -907,6 +1333,33 @@ function renderDashboard() {
           <div class="stat-value">${moneyHtml(totalAll)}</div>
           <div class="stat-sub">${budgets.length} hạng mục</div>
         </div>
+      </div>
+
+      <div class="glass insight-panel">
+        <div class="insight-head">
+          <div>
+            <h2>Cần chú ý</h2>
+            <p>Những việc và khoản chi nên xử lý sớm</p>
+          </div>
+          <span class="status-pill status-booked"><span class="d"></span>${insights.length} mục</span>
+        </div>
+        ${insights.length === 0 ? `
+          <div class="insight-item success">
+            <span class="insight-icon"><svg class="ic ic-sm"><use href="#i-check"/></svg></span>
+            <div>
+              <div class="insight-title">Mọi thứ đang ổn</div>
+              <div class="insight-meta">Chưa có deadline gấp hoặc khoản thanh toán cần nhắc.</div>
+            </div>
+          </div>
+        ` : `<div class="insight-list">${insights.map(item => `
+          <div class="insight-item ${item.tone}">
+            <span class="insight-icon"><svg class="ic ic-sm"><use href="${item.icon}"/></svg></span>
+            <div>
+              <div class="insight-title">${esc(item.title)}</div>
+              <div class="insight-meta">${esc(item.meta)}</div>
+            </div>
+          </div>
+        `).join('')}</div>`}
       </div>
 
       <div class="glass pb-wrap progress-section">
@@ -967,25 +1420,38 @@ function renderDashboard() {
 function renderExpense() {
   const budgets = Object.entries(DATA.budget || {});
   const daysSorted = getDaysSorted();
-  const isAdmin = role !== 'readonly';
+  const isAdmin = isAdminRole();
+  const sq = expenseSearch.trim().toLowerCase();
 
   const filtered = budgets.filter(([id, b]) => {
     if (currentDay !== 'all' && b.day !== currentDay) return false;
     if (currentFilter === 'done' && b.status !== 'done') return false;
+    if (currentFilter === 'booked' && b.status !== 'booked') return false;
     if (currentFilter === 'deposit' && b.status !== 'deposit') return false;
-    if (currentFilter === 'pending' && b.status !== 'pending') return false;
+    if (currentFilter === 'pending' && (b.status || 'pending') !== 'pending') return false;
+    if (sq) {
+      const hay = [b.name, b.vendor, b.phone, b.note].map(x => String(x || '').toLowerCase()).join(' ');
+      if (!hay.includes(sq)) return false;
+    }
     return true;
+  }).sort((a,b) => {
+    const ax = a[1], bx = b[1];
+    if (expenseSort === 'amount') return (Number(bx.total)||0) - (Number(ax.total)||0) || (Number(bx.ts)||0) - (Number(ax.ts)||0);
+    if (expenseSort === 'status') return expenseStatusMeta(ax.status).order - expenseStatusMeta(bx.status).order || dateSortValue(ax.deadline) - dateSortValue(bx.deadline);
+    if (expenseSort === 'newest') return (Number(bx.ts)||0) - (Number(ax.ts)||0);
+    return dateSortValue(ax.deadline) - dateSortValue(bx.deadline) || (Number(bx.ts)||0) - (Number(ax.ts)||0);
   });
 
   const dayBudgets = currentDay === 'all' ? budgets : budgets.filter(([,b]) => b.day === currentDay);
   const sumTotal = dayBudgets.reduce((a,[,x])=>a+(Number(x.total)||0), 0);
-  const sumPaid = dayBudgets.reduce((a,[,x])=>a+((Number(x.deposit)||0)+(x.status==='done' ? (Number(x.total)||0)-(Number(x.deposit)||0) : 0)), 0);
-  const sumRem = dayBudgets.filter(([,b])=>b.status!=='done').reduce((a,[,x])=>a+((Number(x.total)||0)-(Number(x.deposit)||0)), 0);
+  const sumPaid = dayBudgets.reduce((a,[,x])=>a+expensePaid(x), 0);
+  const sumRem = dayBudgets.filter(([,b])=>b.status!=='done').reduce((a,[,x])=>a+expenseRemaining(x), 0);
 
   const cntAll = dayBudgets.length;
   const cntDone = dayBudgets.filter(([,b])=>b.status==='done').length;
+  const cntBooked = dayBudgets.filter(([,b])=>b.status==='booked').length;
   const cntDep = dayBudgets.filter(([,b])=>b.status==='deposit').length;
-  const cntPend = dayBudgets.filter(([,b])=>b.status==='pending').length;
+  const cntPend = dayBudgets.filter(([,b])=>(b.status || 'pending')==='pending').length;
 
   return `
     <div class="page">
@@ -1017,35 +1483,66 @@ function renderExpense() {
       <div class="filter-chips">
         <button type="button" class="chip ${currentFilter==='all'?'active':''}" data-flt="all">Tất cả <span class="ct">${cntAll}</span></button>
         <button type="button" class="chip ${currentFilter==='done'?'active':''}" data-flt="done">Hoàn tất <span class="ct">${cntDone}</span></button>
+        <button type="button" class="chip ${currentFilter==='booked'?'active':''}" data-flt="booked">Đã đặt <span class="ct">${cntBooked}</span></button>
         <button type="button" class="chip ${currentFilter==='deposit'?'active':''}" data-flt="deposit">Đã cọc <span class="ct">${cntDep}</span></button>
         <button type="button" class="chip ${currentFilter==='pending'?'active':''}" data-flt="pending">Chưa đặt <span class="ct">${cntPend}</span></button>
+      </div>
+
+      <div class="expense-toolbar">
+        <div class="search-wrap">
+          <svg class="ic"><use href="#i-search"/></svg>
+          <input class="input" id="expenseSearchInput" placeholder="Tìm theo hạng mục, nhà cung cấp, SĐT, ghi chú..." value="${esc(expenseSearch)}"/>
+        </div>
+        <select class="input" id="expenseSortInput" aria-label="Sắp xếp chi tiêu">
+          <option value="deadline" ${expenseSort==='deadline'?'selected':''}>Hạn gần nhất</option>
+          <option value="amount" ${expenseSort==='amount'?'selected':''}>Số tiền cao nhất</option>
+          <option value="status" ${expenseSort==='status'?'selected':''}>Trạng thái</option>
+          <option value="newest" ${expenseSort==='newest'?'selected':''}>Mới nhất</option>
+        </select>
       </div>
 
       <div class="list">
         ${filtered.length === 0 ? `
           <div class="glass empty">
             <svg class="ic ic-big"><use href="#i-coin"/></svg>
-            <h3>Chưa có hạng mục</h3>
-            <p>${isAdmin ? 'Bấm nút + để thêm' : ''}</p>
+            <h3>Chưa có hạng mục phù hợp</h3>
+            <p>${isAdmin ? 'Thêm khoản chi mới hoặc đổi bộ lọc để xem toàn bộ kế hoạch ngân sách.' : 'Không có khoản chi phù hợp với bộ lọc hiện tại.'}</p>
+            ${isAdmin ? '<button type="button" class="btn btn-primary" data-act="add-expense"><svg class="ic ic-sm"><use href="#i-plus"/></svg> Thêm chi tiêu</button>' : ''}
           </div>
         ` : filtered.map(([id, b]) => {
-          const statusClass = b.status === 'done' ? 'status-done' : b.status === 'deposit' ? 'status-deposit' : 'status-pending';
-          const statusText = b.status === 'done' ? 'Hoàn tất' : b.status === 'deposit' ? `Cọc ${fmtMoney(b.deposit)}${unitMoney(b.deposit)}` : 'Chưa đặt';
+          const status = expenseStatusMeta(b.status);
           const dayColor = getDayColor(b.day);
+          const total = Number(b.total) || 0;
+          const paid = expensePaid(b);
+          const rem = expenseRemaining(b);
+          const dl = b.deadline && b.status !== 'done' ? relativeDeadline(b.deadline) : null;
+          const deadlineText = b.deadline ? (dl ? dl.txt : fmtDateShort(b.deadline)) : '';
           return `
-            <div class="glass exp-card" data-edit-budget="${id}">
-              <div class="exp-dot" style="background:${dayColor};color:${dayColor}"></div>
-              <div class="exp-body">
-                <div class="exp-name">${esc(b.name||'')}</div>
-                <div class="exp-meta">
-                  ${b.vendor?`<span>${esc(b.vendor)}</span>`:''}
-                  ${b.vendor && b.phone?`<span class="sep-dot">·</span>`:''}
-                  ${b.phone?`<a href="tel:${esc(b.phone)}" onclick="event.stopPropagation()"><svg class="ic ic-sm"><use href="#i-phone"/></svg> ${esc(b.phone)}</a>`:''}
+            <div class="glass exp-card" data-edit-budget="${id}" style="cursor:${isAdmin?'pointer':'default'}">
+              <div class="exp-card-inner">
+                <div class="exp-dot" style="background:${dayColor};color:${dayColor}"></div>
+                <div class="exp-main">
+                  <div class="exp-name-row">
+                    <div class="exp-name">${esc(b.name||'')}</div>
+                    <div class="status-pill ${status.cls}"><span class="d"></span>${status.label}</div>
+                    ${b.deadline ? `<span class="deadline-pill ${dl?dl.cls:''}"><svg class="ic ic-sm"><use href="#i-clock"/></svg>${deadlineText}</span>` : ''}
+                  </div>
+                  <div class="exp-meta">
+                    ${b.vendor?`<span>${esc(b.vendor)}</span>`:''}
+                    ${b.vendor && b.phone?`<span class="sep-dot">·</span>`:''}
+                    ${b.phone?`<a href="tel:${esc(b.phone)}" onclick="event.stopPropagation()"><svg class="ic ic-sm"><use href="#i-phone"/></svg> ${esc(b.phone)}</a>`:''}
+                    ${b.note?`<span class="sep-dot">·</span><span>${esc(b.note)}</span>`:''}
+                  </div>
+                  <div class="exp-inline-money">
+                    <span>Tổng <b>${fmtMoney(total)} ${unitMoney(total)}</b></span>
+                    <span>Đã trả <b>${fmtMoney(paid)} ${unitMoney(paid)}</b></span>
+                    <span>Còn <b class="${rem>0?'warn':'ok'}">${fmtMoney(rem)} ${unitMoney(rem)}</b></span>
+                  </div>
                 </div>
-              </div>
-              <div class="exp-right">
-                <div class="exp-amount">${moneyHtml(b.total)}</div>
-                <div class="status-pill ${statusClass}"><span class="d"></span>${statusText}</div>
+                <div class="exp-right">
+                  <div class="exp-amount">${moneyHtml(total)}</div>
+                  ${rem > 0 && b.status !== 'done' ? `<div class="dex-rem">Còn ${fmtMoney(rem)} ${unitMoney(rem)}</div>` : '<div class="dex-rem done">Đã thanh toán đủ</div>'}
+                </div>
               </div>
             </div>
           `;
@@ -1059,9 +1556,9 @@ function renderFund() {
   const funds = Object.entries(DATA.fund || {});
   const budgets = Object.values(DATA.budget || {});
   const totalFund = funds.reduce((a,[,x])=>a+(Number(x.amount)||0), 0);
-  const totalSpent = budgets.reduce((a,x)=>a+((Number(x.deposit)||0)+(x.status==='done' ? (Number(x.total)||0)-(Number(x.deposit)||0) : 0)), 0);
-  const remain = budgets.filter(b=>b.status!=='done').reduce((a,x)=>a+((Number(x.total)||0)-(Number(x.deposit)||0)), 0);
-  const isAdmin = role !== 'readonly';
+  const totalSpent = budgets.reduce((a,x)=>a+expensePaid(x), 0);
+  const remain = budgets.filter(b=>b.status!=='done').reduce((a,x)=>a+expenseRemaining(x), 0);
+  const isAdmin = isAdminRole();
 
   return `
     <div class="page">
@@ -1096,7 +1593,7 @@ function renderFund() {
 function renderGift() {
   const tables = Object.entries(DATA.gift_tables || {});
   const guests = Object.entries(DATA.gift_guests || {});
-  const isAdmin = role !== 'readonly';
+  const isAdmin = isAdminRole();
 
   const totalAmount = guests.reduce((a,[,g])=>a+(Number(g.amount)||0), 0);
   const totalGuests = guests.length;
@@ -1185,49 +1682,39 @@ function renderGift() {
 }
 
 function renderTodo() {
-  const isAdmin = role !== 'readonly';
-  const items = [];
-  Object.entries(STATIC_TODOS).forEach(([k, txt]) => {
-    const v = DATA.checklist && DATA.checklist[k];
-    if (v && typeof v === 'object' && v.deleted) return;
-    const done = v === true || (v && typeof v === 'object' && v.done);
-    const deadline = v && typeof v === 'object' ? v.deadline : null;
-    const text = v && typeof v === 'object' && v.text ? v.text : txt;
-    items.push({ id: k, text, done, deadline, static: true });
-  });
-  Object.entries(DATA.checklist || {}).forEach(([k, v]) => {
-    if (k.startsWith('c_') && v && typeof v === 'object' && !v.deleted) {
-      items.push({ id: k, text: v.text || '', done: !!v.done, deadline: v.deadline, static: false });
-    }
-  });
+  const isAdmin = isAdminRole();
+  const items = getChecklistItems();
 
   const done = items.filter(i => i.done).length;
   const total = items.length;
   const pct = total > 0 ? Math.round(done/total*100) : 0;
 
-  const today = new Date(); today.setHours(0,0,0,0);
   const groups = { overdue: [], soon: [], later: [], done: [] };
   items.forEach(i => {
     if (i.done) { groups.done.push(i); return; }
     if (!i.deadline) { groups.later.push(i); return; }
-    const d = new Date(i.deadline+'T00:00:00');
-    const diff = Math.round((d - today)/86400000);
+    const diff = deadlineDiff(i.deadline);
     if (diff < 0) groups.overdue.push(i);
     else if (diff <= 7) groups.soon.push(i);
     else groups.later.push(i);
   });
+  const byDeadline = (a,b) => dateSortValue(a.deadline) - dateSortValue(b.deadline) || (a.order||0) - (b.order||0) || a.text.localeCompare(b.text);
+  groups.overdue.sort(byDeadline);
+  groups.soon.sort(byDeadline);
+  groups.later.sort(byDeadline);
+  groups.done.sort((a,b) => Number(a.done) - Number(b.done) || dateSortValue(a.deadline) - dateSortValue(b.deadline));
 
   const renderGroup = (title, list) => list.length === 0 ? '' : `
     <div class="todo-group-title"><span>${title}</span><span class="ct">${list.length}</span></div>
     <div class="list">
       ${list.map(i => {
-        const dl = relativeDeadline(i.deadline);
+        const dl = i.done ? null : relativeDeadline(i.deadline);
         return `
           <div class="glass todo-item">
             <div class="todo-check ${i.done?'done':''}" data-toggle-todo="${i.id}" data-static="${i.static?1:0}" data-done="${i.done?1:0}"></div>
             <div class="todo-body">
               <div class="todo-text ${i.done?'done':''}">${esc(i.text)}</div>
-              ${i.deadline?`<div class="todo-deadline ${dl?dl.cls:''}"><svg class="ic ic-sm"><use href="#i-clock"/></svg> ${dl?dl.txt:i.deadline}</div>`:''}
+              ${i.done?`<div class="todo-deadline done"><svg class="ic ic-sm"><use href="#i-check"/></svg> Đã hoàn tất</div>`:(i.deadline?`<div class="todo-deadline ${dl?dl.cls:''}"><svg class="ic ic-sm"><use href="#i-clock"/></svg> ${dl?dl.txt:i.deadline}</div>`:'')}
             </div>
             ${isAdmin?`<div class="todo-actions">
               <button type="button" class="btn-mini" data-act="edit-todo" data-id="${i.id}" data-static="${i.static?1:0}"><svg class="ic ic-sm"><use href="#i-edit"/></svg></button>
@@ -1249,10 +1736,10 @@ function renderTodo() {
         <div class="pb-bar"><div class="pb-fill green" style="width:${pct}%"></div></div>
       </div>
       ${total === 0 ? `<div class="glass empty"><svg class="ic ic-big"><use href="#i-check"/></svg><h3>Chưa có việc cần làm</h3></div>` : `
-        ${renderGroup('🔴 Quá hạn', groups.overdue)}
-        ${renderGroup('🟡 Sắp đến hạn', groups.soon)}
-        ${renderGroup('⚪ Sắp tới', groups.later)}
-        ${renderGroup('✓ Đã hoàn tất', groups.done)}
+        ${renderGroup('Quá hạn', groups.overdue)}
+        ${renderGroup('Sắp đến hạn', groups.soon)}
+        ${renderGroup('Sắp tới', groups.later)}
+        ${renderGroup('Đã hoàn tất', groups.done)}
       `}
     </div>
   `;
@@ -1260,7 +1747,7 @@ function renderTodo() {
 
 function renderContact() {
   const contacts = Object.entries(DATA.contacts || {});
-  const isAdmin = role !== 'readonly';
+  const isAdmin = isAdminRole();
   return `
     <div class="page">
       ${contacts.length === 0 ? `
@@ -1303,39 +1790,85 @@ function renderContact() {
 }
 
 function renderTimeline() {
-  const events = Object.entries(DATA.timeline || {}).sort((a,b) => (a[1].time||'').localeCompare(b[1].time||''));
-  const isAdmin = role !== 'readonly';
+  const days = getTimelineDaysSorted();
+  const dayOrder = new Map(days.map(([id, d], idx) => [id, Number(d.order ?? idx)]));
+  const events = Object.entries(DATA.timeline || {})
+    .filter(([,e]) => currentTimelineDay === 'all' || effectiveEventDayId(e) === currentTimelineDay)
+    .sort((a,b) => {
+      const da = effectiveEventDayId(a[1]), db = effectiveEventDayId(b[1]);
+      return (dayOrder.get(da) ?? 999) - (dayOrder.get(db) ?? 999)
+        || (a[1].time||'').localeCompare(b[1].time||'')
+        || (Number(a[1].order)||0) - (Number(b[1].order)||0)
+        || (Number(a[1].ts)||0) - (Number(b[1].ts)||0);
+    });
+  const isAdmin = isAdminRole();
+  const grouped = days.map(([id, info]) => ({
+    id,
+    info,
+    events: events.filter(([,e]) => effectiveEventDayId(e) === id)
+  })).filter(g => currentTimelineDay === 'all' ? g.events.length > 0 : g.id === currentTimelineDay);
   return `
     <div class="page">
+      <div class="tl-day-tabs-wrap">
+        <div class="day-tabs">
+          <button type="button" class="day-tab ${currentTimelineDay==='all'?'active':''}" data-tl-day="all">Tất cả</button>
+          ${days.map(([id, info]) => `
+            <button type="button" class="day-tab ${currentTimelineDay===id?'active':''}" data-tl-day="${id}">${esc(info.name)}</button>
+          `).join('')}
+        </div>
+        ${isAdmin ? `<button type="button" class="day-manage-btn" data-act="tl-day-mgr"><svg class="ic ic-sm"><use href="#i-settings"/></svg></button>` : ''}
+      </div>
       <div class="glass" style="padding:18px 22px;margin-bottom:12px">
         <div class="pb-head">
-          <h2>Lịch trình ngày cưới</h2>
+          <h2>Lịch trình nhiều ngày</h2>
           <span class="ornament">✦ ✦ ✦</span>
         </div>
-        <p class="text-dim" style="font-size:12px">Chi tiết các sự kiện trong ngày trọng đại</p>
+        <p class="text-dim" style="font-size:12px">Chia lịch theo từng ngày, giữ sự kiện cũ chưa có ngày trong ngày mặc định.</p>
       </div>
       ${events.length === 0 ? `
         <div class="glass empty">
           <svg class="ic ic-big"><use href="#i-calendar"/></svg>
           <h3>Chưa có lịch trình</h3>
-          <p>${isAdmin?'Bấm + để thêm sự kiện':''}</p>
+          <p>${isAdmin?'Thêm ngày hoặc sự kiện đầu tiên cho lịch cưới nhiều ngày.':''}</p>
+          ${isAdmin ? '<button type="button" class="btn btn-primary" data-act="add-timeline"><svg class="ic ic-sm"><use href="#i-plus"/></svg> Thêm sự kiện</button>' : ''}
         </div>
-      ` : `<div class="list">${events.map(([id, e]) => `
-        <div class="glass tl-event" data-edit-timeline="${id}" style="cursor:${isAdmin?'pointer':'default'}">
-          <div class="tl-time">${esc(e.time||'--:--')}</div>
-          <div class="tl-body">
-            <div class="tl-name">${esc(e.name||'')}</div>
-            ${e.note?`<div class="tl-note">${esc(e.note)}</div>`:''}
+      ` : grouped.map(group => `
+        <div class="tl-day-section">
+          <div class="glass tl-day-head">
+            <div class="tl-day-title">
+              <span class="tl-day-dot" style="background:${group.info.color};color:${group.info.color}"></span>
+              <div>
+                <div class="tl-day-name">${esc(group.info.name)}</div>
+                ${group.info.date ? `<div class="tl-day-date">${fmtDateFull(group.info.date)}</div>` : ''}
+              </div>
+            </div>
+            <span class="status-pill status-booked"><span class="d"></span>${group.events.length} sự kiện</span>
           </div>
+          <div class="list">${group.events.map(([id, e], idx) => `
+            <div class="glass tl-event" data-edit-timeline="${id}" style="cursor:${isAdmin?'pointer':'default'}">
+              <div class="tl-time">${esc(e.time||'--:--')}</div>
+              <div class="tl-body">
+                <div class="tl-name">${esc(e.name||'')}</div>
+                ${e.location?`<div class="tl-note"><svg class="ic ic-sm"><use href="#i-mappin"/></svg> ${esc(e.location)}</div>`:''}
+                ${e.note?`<div class="tl-note">${esc(e.note)}</div>`:''}
+              </div>
+              ${isAdmin?`<div class="tl-actions">
+                <button type="button" class="btn-mini" data-act="tl-event-up" data-id="${id}" ${idx===0?'disabled style="opacity:.3"':''}><svg class="ic ic-sm"><use href="#i-arrow-up"/></svg></button>
+                <button type="button" class="btn-mini" data-act="tl-event-down" data-id="${id}" ${idx===group.events.length-1?'disabled style="opacity:.3"':''}><svg class="ic ic-sm"><use href="#i-arrow-down"/></svg></button>
+              </div>`:''}
+            </div>
+          `).join('')}</div>
         </div>
-      `).join('')}</div>`}
+      `).join('')}
     </div>
   `;
 }
 
 // ============== MODAL ==============
+let closeModalTimer;
 function showModal(html, maxWidth = 480) {
   const root = $('#modalRoot');
+  clearTimeout(closeModalTimer);
   root.innerHTML = `
     <div class="modal-bd show" id="curModal">
       <div class="glass modal" style="max-width:${maxWidth}px">${html}</div>
@@ -1355,7 +1888,7 @@ function closeModal() {
   const bd = $('#curModal');
   if (bd) {
     bd.style.opacity = '0';
-    setTimeout(() => { root.innerHTML = ''; }, 200);
+    closeModalTimer = setTimeout(() => { if (root.contains(bd)) root.innerHTML = ''; }, 200);
   } else {
     root.innerHTML = '';
   }
@@ -1363,10 +1896,11 @@ function closeModal() {
 
 // ============== SETTINGS ==============
 function openSettings() {
+  if (!isAdminRole()) return;
   const wd = (DATA.config.wedding && DATA.config.wedding.date) || '2026-09-13';
   const nm = (DATA.config.wedding && DATA.config.wedding.name) || 'Khanh & Tú';
   const isSuper = role === 'super';
-  const canEdit = role !== 'readonly';
+  const canEdit = isAdminRole();
   showModal(`
     <h2>Cài đặt</h2>
     <div class="field">
@@ -1382,6 +1916,10 @@ function openSettings() {
       <input type="password" class="input" id="setAdminPw" placeholder="Để trống nếu không đổi" ${!isSuper?'disabled':''}/>
       ${!isSuper?'<div style="font-size:11px;color:var(--cream-faint);margin-top:4px">Chỉ Super Admin được đổi mật khẩu</div>':''}
     </div>`:''}
+    ${canEdit?`<div class="field">
+      <label class="label">Mật khẩu Chế độ xem</label>
+      <input type="password" class="input" id="setViewerPw" placeholder="Để trống nếu không đổi"/>
+    </div>`:''}
     ${canEdit?`<div class="row" style="margin-top:14px">
       <button type="button" class="btn" id="btnExport"><svg class="ic ic-sm"><use href="#i-download"/></svg> Export</button>
       <button type="button" class="btn" id="btnImport"><svg class="ic ic-sm"><use href="#i-upload"/></svg> Import</button>
@@ -1395,7 +1933,7 @@ function openSettings() {
 }
 
 async function saveSettings() {
-  if (role === 'readonly') return;
+  if (!isAdminRole()) return;
   const { db, ref, update } = window.fb;
   const date = $('#setDate').value;
   const name = $('#setNames').value.trim();
@@ -1408,6 +1946,8 @@ async function saveSettings() {
       updates['config/passwords/admin'] = np;
     }
   }
+  const vp = $('#setViewerPw') && $('#setViewerPw').value.trim();
+  if (vp) updates['config/passwords/viewer'] = vp;
   if (Object.keys(updates).length) {
     await update(ref(db, '/'), updates);
     toast('Đã lưu cài đặt');
@@ -1447,7 +1987,7 @@ function importJSON(e) {
 
 // ============== EXPENSE MODAL ==============
 function openExpenseModal(id) {
-  if (role === 'readonly') return;
+  if (!isAdminRole()) return;
   editingId = id || null;
   const b = id ? (DATA.budget[id] || {}) : {};
   const daysSorted = getDaysSorted();
@@ -1470,7 +2010,8 @@ function openExpenseModal(id) {
     <div class="row">
       <div class="field"><label class="label">Trạng thái</label>
         <select class="input" id="ef-status">
-          <option value="pending" ${b.status==='pending'?'selected':''}>Chưa đặt</option>
+          <option value="pending" ${(b.status||'pending')==='pending'?'selected':''}>Chưa đặt</option>
+          <option value="booked" ${b.status==='booked'?'selected':''}>Đã đặt</option>
           <option value="deposit" ${b.status==='deposit'?'selected':''}>Đã cọc</option>
           <option value="done" ${b.status==='done'?'selected':''}>Hoàn tất</option>
         </select>
@@ -1519,7 +2060,7 @@ async function deleteExpense(id) {
 
 // ============== FUND MODAL ==============
 function openFundModal(id) {
-  if (role === 'readonly') return;
+  if (!isAdminRole()) return;
   editingId = id || null;
   const f = id ? (DATA.fund[id] || {}) : {};
   showModal(`
@@ -1557,7 +2098,7 @@ async function deleteFund(id) {
 
 // ============== GIFT ==============
 function openGiftTableModal() {
-  if (role === 'readonly') return;
+  if (!isAdminRole()) return;
   showModal(`
     <h2>Thêm bàn tiệc</h2>
     <div class="field"><label class="label">Tên bàn *</label><input class="input" id="gt-name" placeholder="VD: Bàn họ hàng"/></div>
@@ -1595,7 +2136,7 @@ async function deleteTable(id) {
   toast('Đã xoá bàn');
 }
 function openGuestModal(gid, tid) {
-  if (role === 'readonly') return;
+  if (!isAdminRole()) return;
   editingId = gid || null;
   const g = gid ? (DATA.gift_guests[gid] || {}) : { tableId: tid, status: 'invited' };
   const tableId = g.tableId || tid;
@@ -1657,7 +2198,7 @@ async function deleteGuest(id) {
 
 // ============== TODO ==============
 async function toggleTodo(id, isStatic, currentDone) {
-  if (role === 'readonly') return;
+  if (!isAdminRole()) return;
   const { db, ref, set, update } = window.fb;
   const newDone = !currentDone;
   if (isStatic) {
@@ -1669,7 +2210,7 @@ async function toggleTodo(id, isStatic, currentDone) {
   }
 }
 async function deleteTodo(id, isStatic) {
-  if (role === 'readonly') return;
+  if (!isAdminRole()) return;
   if (!confirm('Xoá việc này?')) return;
   const { db, ref, set, remove } = window.fb;
   if (isStatic) await set(ref(db, `checklist/${id}`), { deleted: true });
@@ -1677,7 +2218,7 @@ async function deleteTodo(id, isStatic) {
   toast('Đã xoá');
 }
 function openTodoModal(id, isStatic) {
-  if (role === 'readonly') return;
+  if (!isAdminRole()) return;
   editingId = id || null;
   let text = '', deadline = '';
   if (id) {
@@ -1725,7 +2266,7 @@ async function saveTodo() {
 
 // ============== CONTACT ==============
 function openContactModal(id) {
-  if (role === 'readonly') return;
+  if (!isAdminRole()) return;
   editingId = id || null;
   const c = id ? (DATA.contacts[id] || {}) : {};
   pendingImg = c.img || '';
@@ -1790,7 +2331,7 @@ async function saveContact() {
   closeModal();
 }
 async function deleteContact(id) {
-  if (role === 'readonly') return;
+  if (!isAdminRole()) return;
   if (!confirm('Xoá liên hệ này?')) return;
   await window.fb.remove(window.fb.ref(window.fb.db, `contacts/${id}`));
   toast('Đã xoá');
@@ -1798,15 +2339,24 @@ async function deleteContact(id) {
 
 // ============== TIMELINE ==============
 function openTimelineModal(id) {
-  if (role === 'readonly') return;
+  if (!isAdminRole()) return;
   editingId = id || null;
   const e = id ? (DATA.timeline && DATA.timeline[id]) || {} : {};
+  const days = getTimelineDaysSorted();
+  const selectedDay = e.dayId || (currentTimelineDay !== 'all' ? currentTimelineDay : getDefaultTimelineDayId());
   showModal(`
     <h2>${id?'Sửa sự kiện':'Thêm sự kiện'}</h2>
+    <div class="field">
+      <label class="label">Thuộc ngày</label>
+      <select class="input" id="tl-day">
+        ${days.map(([did, info]) => `<option value="${did}" ${selectedDay===did?'selected':''}>${esc(info.name)}</option>`).join('')}
+      </select>
+    </div>
     <div class="row">
       <div class="field"><label class="label">Giờ *</label><input class="input" id="tl-time" type="time" value="${esc(e.time||'')}"/></div>
       <div class="field" style="flex:2"><label class="label">Tên sự kiện *</label><input class="input" id="tl-name" value="${esc(e.name||'')}"/></div>
     </div>
+    <div class="field"><label class="label">Địa điểm</label><input class="input" id="tl-location" value="${esc(e.location||'')}"/></div>
     <div class="field"><label class="label">Ghi chú</label><textarea class="input" id="tl-note">${esc(e.note||'')}</textarea></div>
     <div class="modal-actions">
       ${id?`<button type="button" class="btn btn-danger" id="btnDelTimeline"><svg class="ic ic-sm"><use href="#i-trash"/></svg></button>`:''}
@@ -1816,10 +2366,14 @@ function openTimelineModal(id) {
   `);
 }
 async function saveTimeline() {
+  const existing = editingId ? ((DATA.timeline && DATA.timeline[editingId]) || {}) : {};
   const data = {
+    dayId: $('#tl-day').value,
     time: $('#tl-time').value,
     name: $('#tl-name').value.trim(),
+    location: $('#tl-location').value.trim(),
     note: $('#tl-note').value.trim(),
+    order: existing.order || Date.now(),
     ts: Date.now()
   };
   if (!data.time || !data.name) { toast('Nhập giờ và tên sự kiện', 'error'); return; }
@@ -1836,9 +2390,131 @@ async function deleteTimeline(id) {
   closeModal();
 }
 
+// ============== TIMELINE DAY MANAGER ==============
+async function openTimelineDayManager() {
+  if (!isAdminRole()) return;
+  await ensureTimelineDefaultDay();
+  renderTimelineDayManager();
+}
+function renderTimelineDayManager() {
+  const days = getTimelineDaysSorted();
+  showModal(`
+    <h2>Quản lý ngày lịch trình</h2>
+    <div class="tl-day-mgr-grid">
+      ${days.map(([id, info], idx) => `
+        <div class="tl-day-mgr-item">
+          <input class="tl-day-mgr-color-input" type="color" value="${esc(info.color || '#d0b35f')}" data-id="${id}" title="Màu ngày"/>
+          <input class="input tl-day-mgr-name" value="${esc(info.name || '')}" data-id="${id}" placeholder="Tên ngày"/>
+          <input class="input tl-day-mgr-date" type="date" value="${esc(info.date || '')}" data-id="${id}"/>
+          <input class="input tl-day-mgr-time" type="time" value="${esc(info.time || '')}" data-id="${id}"/>
+          <input class="input tl-day-mgr-location" value="${esc(info.location || '')}" data-id="${id}" placeholder="Địa điểm"/>
+          <input class="input tl-day-mgr-note" value="${esc(info.note || '')}" data-id="${id}" placeholder="Ghi chú ngắn"/>
+          <div class="day-mgr-actions">
+            <button type="button" class="btn-mini" data-act="tl-day-up" data-id="${id}" ${idx===0?'disabled style="opacity:.3"':''}><svg class="ic ic-sm"><use href="#i-arrow-up"/></svg></button>
+            <button type="button" class="btn-mini" data-act="tl-day-down" data-id="${id}" ${idx===days.length-1?'disabled style="opacity:.3"':''}><svg class="ic ic-sm"><use href="#i-arrow-down"/></svg></button>
+            <button type="button" class="btn-mini danger" data-act="tl-day-del" data-id="${id}"><svg class="ic ic-sm"><use href="#i-trash"/></svg></button>
+          </div>
+        </div>
+      `).join('')}
+    </div>
+    <button type="button" class="btn" style="width:100%;margin-top:10px" data-act="tl-day-add"><svg class="ic ic-sm"><use href="#i-plus"/></svg> Thêm ngày lịch trình</button>
+    <div class="modal-actions"><button type="button" class="btn btn-primary" style="flex:1" data-act="close">Đóng</button></div>
+  `, 720);
+}
+async function ensureTimelineDefaultDay() {
+  const existingDays = DATA.timeline_days || {};
+  if (existingDays.default && typeof existingDays.default === 'object') return 'default';
+  const named = Object.entries(existingDays).find(([,d]) => d && typeof d === 'object' && isWeddingDayName(d.name));
+  if (named) return named[0];
+  const wd = (DATA.config && DATA.config.wedding && DATA.config.wedding.date) || '2026-09-13';
+  const entries = Object.values(existingDays).filter(d => d && typeof d === 'object');
+  const minOrder = entries.length ? Math.min(...entries.map((d, idx) => timelineDayOrderValue(d, idx))) : 0;
+  const data = {
+    name: 'Ngày cưới',
+    date: wd,
+    time: '',
+    location: '',
+    note: '',
+    color: '#d0b35f',
+    order: entries.length ? minOrder - 1 : 0,
+    ts: Date.now()
+  };
+  DATA.timeline_days = { ...existingDays, default: data };
+  await window.fb.set(window.fb.ref(window.fb.db, 'timeline_days/default'), data);
+  return 'default';
+}
+async function addTimelineDay() {
+  if (!isAdminRole()) return;
+  const name = prompt('Tên ngày lịch trình mới:');
+  if (!name || !name.trim()) return;
+  await ensureTimelineDefaultDay();
+  const days = getTimelineDaysSorted();
+  const maxOrder = Math.max(0, ...days.map(([,d]) => Number(d.order)||0));
+  const id = 'day_' + Date.now();
+  await window.fb.set(window.fb.ref(window.fb.db, `timeline_days/${id}`), {
+    name: name.trim(),
+    date: '',
+    time: '',
+    location: '',
+    note: '',
+    color: COLORS[days.length % COLORS.length],
+    order: maxOrder + 1,
+    ts: Date.now()
+  });
+  toast('Đã thêm ngày lịch trình');
+  renderTimelineDayManager();
+}
+async function updateTimelineDay(id, patch) {
+  if (!isAdminRole()) return;
+  await window.fb.update(window.fb.ref(window.fb.db, `timeline_days/${id}`), { ...patch, ts: Date.now() });
+}
+async function moveTimelineDay(id, dir) {
+  await ensureTimelineDefaultDay();
+  const days = getTimelineDaysSorted().filter(([,d]) => !d.virtual);
+  const idx = days.findIndex(([k]) => k === id);
+  const swap = idx + dir;
+  if (idx < 0 || swap < 0 || swap >= days.length) return;
+  const next = days.slice();
+  [next[idx], next[swap]] = [next[swap], next[idx]];
+  const updates = {};
+  next.forEach(([dayId], order) => {
+    updates[`timeline_days/${dayId}/order`] = order;
+    if (DATA.timeline_days && DATA.timeline_days[dayId]) DATA.timeline_days[dayId].order = order;
+  });
+  await window.fb.update(window.fb.ref(window.fb.db, '/'), updates);
+  renderTimelineDayManager();
+}
+async function deleteTimelineDay(id) {
+  const count = Object.values(DATA.timeline || {}).filter(e => effectiveEventDayId(e) === id).length;
+  if (count > 0) { toast(`Không thể xoá: còn ${count} sự kiện trong ngày này`, 'error'); return; }
+  if (!confirm('Xoá ngày lịch trình này?')) return;
+  await window.fb.remove(window.fb.ref(window.fb.db, `timeline_days/${id}`));
+  if (currentTimelineDay === id) currentTimelineDay = 'all';
+  toast('Đã xoá ngày lịch trình');
+  renderTimelineDayManager();
+}
+async function moveTimelineEvent(id, dir) {
+  const cur = DATA.timeline && DATA.timeline[id];
+  if (!cur) return;
+  const dayId = effectiveEventDayId(cur);
+  const events = Object.entries(DATA.timeline || {})
+    .filter(([,e]) => effectiveEventDayId(e) === dayId)
+    .sort((a,b) => (a[1].time||'').localeCompare(b[1].time||'') || (Number(a[1].order)||0) - (Number(b[1].order)||0) || (Number(a[1].ts)||0) - (Number(b[1].ts)||0));
+  const idx = events.findIndex(([eid]) => eid === id);
+  const swap = idx + dir;
+  if (idx < 0 || swap < 0 || swap >= events.length) return;
+  const aOrder = Number(events[idx][1].order) || idx + 1;
+  const bOrder = Number(events[swap][1].order) || swap + 1;
+  await window.fb.update(window.fb.ref(window.fb.db, '/'), {
+    [`timeline/${events[idx][0]}/order`]: bOrder,
+    [`timeline/${events[swap][0]}/order`]: aOrder
+  });
+  toast('Đã đổi thứ tự sự kiện');
+}
+
 // ============== DAY MANAGER ==============
 function openDayManager() {
-  if (role === 'readonly') return;
+  if (!isAdminRole()) return;
   renderDayManager();
 }
 function renderDayManager() {
@@ -1911,15 +2587,17 @@ async function deleteDay(id) {
 // ============== EVENT DELEGATION ==============
 // Login screen buttons
 document.addEventListener('click', function(e) {
-  const btn = e.target.closest('button, [data-act], [data-edit-budget], [data-edit-fund], [data-edit-guest], [data-edit-timeline], [data-toggle-todo], [data-day], [data-flt], [data-light], a.nav-item');
+  const btn = e.target.closest('button, [data-act], [data-edit-budget], [data-edit-fund], [data-edit-guest], [data-edit-timeline], [data-toggle-todo], [data-day], [data-tl-day], [data-flt], [data-light], a.nav-item');
   if (!btn) return;
 
   // Login screen
   if (btn.id === 'btnLogin') { doLogin(); return; }
-  if (btn.id === 'btnReadonly') { enterReadonly(); return; }
+  if (btn.id === 'btnViewer') { enterViewer(); return; }
+  if (btn.id === 'btnPublic') { enterPublic(); return; }
   if (btn.id === 'btnGoLogin') { showLogin(); return; }
   if (btn.id === 'btnSettingsSide' || btn.id === 'btnSettingsTop') { openSettings(); return; }
   if (btn.id === 'btnLogoutSide') { logout(); return; }
+  if (btn.id === 'btnLogoutMobileHead') { logout(); return; }
   if (btn.id === 'btnMore') { openMore(); return; }
 
   // Modal save buttons
@@ -1952,7 +2630,10 @@ document.addEventListener('click', function(e) {
   if (act === 'page-timeline') { goto('timeline'); closeModal(); return; }
   if (act === 'settings') { closeModal(); setTimeout(openSettings, 220); return; }
   if (act === 'logout') { closeModal(); setTimeout(logout, 220); return; }
+  if (act === 'add-expense') { openExpenseModal(); return; }
+  if (act === 'add-timeline') { openTimelineModal(); return; }
   if (act === 'day-mgr') { openDayManager(); return; }
+  if (act === 'tl-day-mgr') { openTimelineDayManager(); return; }
   if (act === 'rename-table') { renameTable(btn.dataset.tid); return; }
   if (act === 'del-table') { deleteTable(btn.dataset.tid); return; }
   if (act === 'add-guest') { openGuestModal(null, btn.dataset.tid); return; }
@@ -1965,6 +2646,12 @@ document.addEventListener('click', function(e) {
   if (act === 'day-up') { moveDay(btn.dataset.id, -1); return; }
   if (act === 'day-down') { moveDay(btn.dataset.id, 1); return; }
   if (act === 'day-del') { deleteDay(btn.dataset.id); return; }
+  if (act === 'tl-day-add') { addTimelineDay(); return; }
+  if (act === 'tl-day-up') { moveTimelineDay(btn.dataset.id, -1); return; }
+  if (act === 'tl-day-down') { moveTimelineDay(btn.dataset.id, 1); return; }
+  if (act === 'tl-day-del') { deleteTimelineDay(btn.dataset.id); return; }
+  if (act === 'tl-event-up') { e.stopPropagation(); moveTimelineEvent(btn.dataset.id, -1); return; }
+  if (act === 'tl-event-down') { e.stopPropagation(); moveTimelineEvent(btn.dataset.id, 1); return; }
 
   // Data attributes for editing
   if (btn.dataset.editBudget) { openExpenseModal(btn.dataset.editBudget); return; }
@@ -1976,6 +2663,7 @@ document.addEventListener('click', function(e) {
     return;
   }
   if (btn.dataset.day !== undefined) { currentDay = btn.dataset.day; render(); return; }
+  if (btn.dataset.tlDay !== undefined) { currentTimelineDay = btn.dataset.tlDay; render(); return; }
   if (btn.dataset.flt) { currentFilter = btn.dataset.flt; render(); return; }
   if (btn.dataset.light) {
     $('#lightboxImg').src = btn.dataset.light;
@@ -2005,6 +2693,19 @@ document.addEventListener('keydown', function(e) {
 document.addEventListener('change', function(e) {
   if (e.target.id === 'ct-imgFile') uploadImg(e);
   if (e.target.id === 'importFile') importJSON(e);
+  if (e.target.id === 'expenseSortInput') {
+    expenseSort = e.target.value;
+    render();
+  }
+  if (e.target.classList && e.target.classList.contains('tl-day-mgr-date')) {
+    updateTimelineDay(e.target.dataset.id, { date: e.target.value });
+  }
+  if (e.target.classList && e.target.classList.contains('tl-day-mgr-time')) {
+    updateTimelineDay(e.target.dataset.id, { time: e.target.value });
+  }
+  if (e.target.classList && e.target.classList.contains('tl-day-mgr-color-input')) {
+    updateTimelineDay(e.target.dataset.id, { color: e.target.value });
+  }
 });
 
 // Gift search input
@@ -2020,9 +2721,28 @@ document.addEventListener('input', function(e) {
       newInput.setSelectionRange(oldVal.length, oldVal.length);
     }
   }
+  if (e.target.id === 'expenseSearchInput') {
+    expenseSearch = e.target.value;
+    const oldVal = expenseSearch;
+    render();
+    const newInput = $('#expenseSearchInput');
+    if (newInput) {
+      newInput.focus();
+      newInput.setSelectionRange(oldVal.length, oldVal.length);
+    }
+  }
   // Day rename
   if (e.target.classList && e.target.classList.contains('day-mgr-name')) {
     renameDay(e.target.dataset.id, e.target.value);
+  }
+  if (e.target.classList && e.target.classList.contains('tl-day-mgr-name')) {
+    updateTimelineDay(e.target.dataset.id, { name: e.target.value.trim() || 'Ngày cưới' });
+  }
+  if (e.target.classList && e.target.classList.contains('tl-day-mgr-location')) {
+    updateTimelineDay(e.target.dataset.id, { location: e.target.value.trim() });
+  }
+  if (e.target.classList && e.target.classList.contains('tl-day-mgr-note')) {
+    updateTimelineDay(e.target.dataset.id, { note: e.target.value.trim() });
   }
 });
 
@@ -2030,7 +2750,8 @@ document.addEventListener('input', function(e) {
 $('#lightbox').addEventListener('click', function() { this.classList.remove('show'); });
 
 // Restore session
-const saved = localStorage.getItem(SK);
+let saved = localStorage.getItem(SK);
+if (saved === 'readonly') saved = 'public';
 if (saved) {
   role = saved;
   setTimeout(() => enterApp(), 300);
