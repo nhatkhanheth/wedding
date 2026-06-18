@@ -334,8 +334,11 @@ textarea.input{resize:vertical;min-height:60px}
 .todo-check.done{background:linear-gradient(135deg,var(--olive-bright),var(--olive-mid));border-color:var(--olive-bright);box-shadow:0 0 8px rgba(168,184,90,.3)}
 .todo-check.done::after{content:'';width:10px;height:6px;border-left:1.8px solid var(--cream);border-bottom:1.8px solid var(--cream);transform:rotate(-45deg) translate(1px,-1px)}
 .todo-body{flex:1;min-width:0}
-.todo-text{font-family:'Outfit',sans-serif;font-size:14px;font-weight:500;color:var(--cream);line-height:1.3;transition:all .3s var(--ease-out)}
+.todo-title-row{display:flex;align-items:flex-start;justify-content:space-between;gap:10px}
+.todo-text{font-family:'Outfit',sans-serif;font-size:14px;font-weight:500;color:var(--cream);line-height:1.3;transition:all .3s var(--ease-out);min-width:0}
 .todo-text.done{text-decoration:line-through;color:var(--cream-faint)}
+.todo-pic{flex-shrink:0;font-size:16px;line-height:1;filter:drop-shadow(0 0 6px rgba(230,201,137,.14))}
+.todo-remark{font-size:11px;color:var(--cream-faint);line-height:1.35;margin-top:3px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
 .todo-deadline{font-size:11px;color:var(--cream-faint);margin-top:2px;display:inline-flex;align-items:center;gap:4px}
 .todo-deadline.overdue{color:var(--danger)}
 .todo-deadline.soon{color:var(--warning)}
@@ -724,6 +727,11 @@ const STATIC_TODOS = {
   c4:'Đặt nhiếp ảnh · quay phim',c5:'Mua nhẫn cưới',c6:'Đặt váy cưới · vest',
   c7:'In thiệp cưới',c8:'Đặt xe hoa',c9:'Đặt hoa cưới · trang trí',c10:'Lên danh sách khách mời'
 };
+const TODO_PICS = {
+  bride: { icon:'👰', label:'Cô dâu' },
+  groom: { icon:'🤵‍♂️', label:'Chú rể' },
+  both: { icon:'🤵‍♂️👰', label:'Cả hai' }
+};
 const COLORS = ['#8fb84a','#c9a961','#a8b85a','#7a9a8e','#d4a942','#c96b5a','#6b8338','#e6c989'];
 const DATA_KEYS = ['config','budget','fund','gift_tables','gift_guests','contacts','checklist','timeline','timeline_days'];
 const EXPENSE_STATUS = {
@@ -757,6 +765,7 @@ let currentFilter = 'all';
 let currentTimelineDay = 'all';
 let expenseSearch = '';
 let expenseSort = 'deadline';
+let todoPicFilter = 'all';
 let DATA = { config:{}, budget:{}, fund:{}, gift_tables:{}, gift_guests:{}, contacts:{}, checklist:{}, timeline:{}, timeline_days:{} };
 let editingId = null;
 let pendingImg = '';
@@ -867,6 +876,15 @@ function deadlineDiff(iso) {
   const today = new Date(); today.setHours(0,0,0,0);
   return Math.round((d - today) / 86400000);
 }
+function todoPicKey(pic) {
+  return TODO_PICS[pic] ? pic : 'both';
+}
+function todoPicIcon(pic) {
+  return TODO_PICS[todoPicKey(pic)].icon;
+}
+function todoPicLabel(pic) {
+  return TODO_PICS[todoPicKey(pic)].label;
+}
 function getChecklistItems() {
   const items = [];
   Object.entries(STATIC_TODOS).forEach(([k, txt]) => {
@@ -875,11 +893,13 @@ function getChecklistItems() {
     const done = v === true || (v && typeof v === 'object' && v.done);
     const deadline = v && typeof v === 'object' ? v.deadline : null;
     const text = v && typeof v === 'object' && v.text ? v.text : txt;
-    items.push({ id: k, text, done, deadline, static: true, order: v && typeof v === 'object' ? v.order : 0 });
+    const pic = v && typeof v === 'object' ? todoPicKey(v.pic) : 'both';
+    const remark = v && typeof v === 'object' && v.remark ? String(v.remark) : '';
+    items.push({ id: k, text, done, deadline, pic, remark, static: true, order: v && typeof v === 'object' ? v.order : 0 });
   });
   Object.entries(DATA.checklist || {}).forEach(([k, v]) => {
     if (k.startsWith('c_') && v && typeof v === 'object' && !v.deleted) {
-      items.push({ id: k, text: v.text || '', done: !!v.done, deadline: v.deadline, static: false, order: v.order || 0 });
+      items.push({ id: k, text: v.text || '', done: !!v.done, deadline: v.deadline, pic: todoPicKey(v.pic), remark: v.remark ? String(v.remark) : '', static: false, order: v.order || 0 });
     }
   });
   return items;
@@ -1150,8 +1170,9 @@ function collectDashboardInsights() {
     if (i.done || !i.deadline) return;
     const diff = deadlineDiff(i.deadline);
     if (diff == null) return;
-    if (diff < 0) items.push({ tone:'danger', icon:'#i-check', sort:0, date:dateSortValue(i.deadline), title:i.text, meta:`Việc cần làm quá hạn ${Math.abs(diff)} ngày` });
-    else if (diff <= 7) items.push({ tone:'warning', icon:'#i-check', sort:1, date:dateSortValue(i.deadline), title:i.text, meta:diff === 0 ? 'Việc cần hoàn tất hôm nay' : `Còn ${diff} ngày để hoàn tất` });
+    const title = `${todoPicIcon(i.pic)} ${i.text}`;
+    if (diff < 0) items.push({ tone:'danger', icon:'#i-check', sort:0, date:dateSortValue(i.deadline), title, meta:`Việc cần làm quá hạn ${Math.abs(diff)} ngày` });
+    else if (diff <= 7) items.push({ tone:'warning', icon:'#i-check', sort:1, date:dateSortValue(i.deadline), title, meta:diff === 0 ? 'Việc cần hoàn tất hôm nay' : `Còn ${diff} ngày để hoàn tất` });
   });
   return items
     .sort((a,b) => a.sort - b.sort || a.date - b.date)
@@ -1683,11 +1704,18 @@ function renderGift() {
 
 function renderTodo() {
   const isAdmin = isAdminRole();
-  const items = getChecklistItems();
+  const allItems = getChecklistItems();
+  const items = todoPicFilter === 'all' ? allItems : allItems.filter(i => todoPicKey(i.pic) === todoPicFilter);
 
-  const done = items.filter(i => i.done).length;
-  const total = items.length;
+  const done = allItems.filter(i => i.done).length;
+  const total = allItems.length;
   const pct = total > 0 ? Math.round(done/total*100) : 0;
+  const picCounts = {
+    all: allItems.length,
+    bride: allItems.filter(i => todoPicKey(i.pic) === 'bride').length,
+    groom: allItems.filter(i => todoPicKey(i.pic) === 'groom').length,
+    both: allItems.filter(i => todoPicKey(i.pic) === 'both').length
+  };
 
   const groups = { overdue: [], soon: [], later: [], done: [] };
   items.forEach(i => {
@@ -1707,15 +1735,20 @@ function renderTodo() {
   const renderGroup = (title, list) => list.length === 0 ? '' : `
     <div class="todo-group-title"><span>${title}</span><span class="ct">${list.length}</span></div>
     <div class="list">
-      ${list.map(i => {
-        const dl = i.done ? null : relativeDeadline(i.deadline);
-        return `
-          <div class="glass todo-item">
-            <div class="todo-check ${i.done?'done':''}" data-toggle-todo="${i.id}" data-static="${i.static?1:0}" data-done="${i.done?1:0}"></div>
-            <div class="todo-body">
-              <div class="todo-text ${i.done?'done':''}">${esc(i.text)}</div>
-              ${i.done?`<div class="todo-deadline done"><svg class="ic ic-sm"><use href="#i-check"/></svg> Đã hoàn tất</div>`:(i.deadline?`<div class="todo-deadline ${dl?dl.cls:''}"><svg class="ic ic-sm"><use href="#i-clock"/></svg> ${dl?dl.txt:i.deadline}</div>`:'')}
-            </div>
+	      ${list.map(i => {
+	        const dl = i.done ? null : relativeDeadline(i.deadline);
+	        const pic = todoPicKey(i.pic);
+	        return `
+	          <div class="glass todo-item">
+	            <div class="todo-check ${i.done?'done':''}" data-toggle-todo="${i.id}" data-static="${i.static?1:0}" data-done="${i.done?1:0}"></div>
+	            <div class="todo-body">
+	              <div class="todo-title-row">
+	                <div class="todo-text ${i.done?'done':''}">${esc(i.text)}</div>
+	                <span class="todo-pic" title="${todoPicLabel(pic)}">${todoPicIcon(pic)}</span>
+	              </div>
+	              ${i.remark ? `<div class="todo-remark">${esc(i.remark)}</div>` : ''}
+	              ${i.done?`<div class="todo-deadline done"><svg class="ic ic-sm"><use href="#i-check"/></svg> Đã hoàn tất</div>`:(i.deadline?`<div class="todo-deadline ${dl?dl.cls:''}"><svg class="ic ic-sm"><use href="#i-clock"/></svg> ${dl?dl.txt:i.deadline}</div>`:'')}
+	            </div>
             ${isAdmin?`<div class="todo-actions">
               <button type="button" class="btn-mini" data-act="edit-todo" data-id="${i.id}" data-static="${i.static?1:0}"><svg class="ic ic-sm"><use href="#i-edit"/></svg></button>
               <button type="button" class="btn-mini danger" data-act="del-todo" data-id="${i.id}" data-static="${i.static?1:0}"><svg class="ic ic-sm"><use href="#i-trash"/></svg></button>
@@ -1729,16 +1762,22 @@ function renderTodo() {
   return `
     <div class="page">
       <div class="glass todo-progress">
-        <div class="pb-row">
-          <span class="lbl">Tiến độ tổng <span class="det">${done} / ${total} hoàn tất</span></span>
-          <span class="pct">${pct}%</span>
-        </div>
-        <div class="pb-bar"><div class="pb-fill green" style="width:${pct}%"></div></div>
-      </div>
-      ${total === 0 ? `<div class="glass empty"><svg class="ic ic-big"><use href="#i-check"/></svg><h3>Chưa có việc cần làm</h3></div>` : `
-        ${renderGroup('Quá hạn', groups.overdue)}
-        ${renderGroup('Sắp đến hạn', groups.soon)}
-        ${renderGroup('Sắp tới', groups.later)}
+	        <div class="pb-row">
+	          <span class="lbl">Tiến độ tổng <span class="det">${done} / ${total} hoàn tất</span></span>
+	          <span class="pct">${pct}%</span>
+	        </div>
+	        <div class="pb-bar"><div class="pb-fill green" style="width:${pct}%"></div></div>
+	      </div>
+	      <div class="filter-chips">
+	        <button type="button" class="chip ${todoPicFilter==='all'?'active':''}" data-todo-pic="all">Tất cả <span class="ct">${picCounts.all}</span></button>
+	        <button type="button" class="chip ${todoPicFilter==='bride'?'active':''}" data-todo-pic="bride">👰 Cô dâu <span class="ct">${picCounts.bride}</span></button>
+	        <button type="button" class="chip ${todoPicFilter==='groom'?'active':''}" data-todo-pic="groom">🤵‍♂️ Chú rể <span class="ct">${picCounts.groom}</span></button>
+	        <button type="button" class="chip ${todoPicFilter==='both'?'active':''}" data-todo-pic="both">🤵‍♂️👰 Cả hai <span class="ct">${picCounts.both}</span></button>
+	      </div>
+	      ${total === 0 ? `<div class="glass empty"><svg class="ic ic-big"><use href="#i-check"/></svg><h3>Chưa có việc cần làm</h3></div>` : items.length === 0 ? `<div class="glass empty"><svg class="ic ic-big"><use href="#i-check"/></svg><h3>Không có việc trong bộ lọc này</h3></div>` : `
+	        ${renderGroup('Quá hạn', groups.overdue)}
+	        ${renderGroup('Sắp đến hạn', groups.soon)}
+	        ${renderGroup('Sắp tới', groups.later)}
         ${renderGroup('Đã hoàn tất', groups.done)}
       `}
     </div>
@@ -2220,20 +2259,33 @@ async function deleteTodo(id, isStatic) {
 function openTodoModal(id, isStatic) {
   if (!isAdminRole()) return;
   editingId = id || null;
-  let text = '', deadline = '';
+  let text = '', deadline = '', pic = 'both', remark = '';
   if (id) {
     const v = DATA.checklist && DATA.checklist[id];
     if (isStatic) {
       text = (v && typeof v === 'object' && v.text) ? v.text : STATIC_TODOS[id] || '';
       deadline = (v && typeof v === 'object') ? (v.deadline || '') : '';
+      pic = (v && typeof v === 'object') ? todoPicKey(v.pic) : 'both';
+      remark = (v && typeof v === 'object' && v.remark) ? String(v.remark) : '';
     } else {
       text = (v && v.text) || ''; deadline = (v && v.deadline) || '';
+      pic = todoPicKey(v && v.pic);
+      remark = (v && v.remark) ? String(v.remark) : '';
     }
   }
   showModal(`
     <h2>${id?'Sửa việc':'Thêm việc cần làm'}</h2>
     <div class="field"><label class="label">Nội dung *</label><input class="input" id="td-text" value="${esc(text)}"/></div>
     <div class="field"><label class="label">Hạn hoàn thành</label><input class="input" id="td-deadline" type="date" value="${deadline}"/></div>
+    <div class="field">
+      <label class="label">PIC</label>
+      <select class="input" id="td-pic">
+        <option value="both" ${pic==='both'?'selected':''}>🤵‍♂️👰 Cả hai</option>
+        <option value="bride" ${pic==='bride'?'selected':''}>👰 Cô dâu</option>
+        <option value="groom" ${pic==='groom'?'selected':''}>🤵‍♂️ Chú rể</option>
+      </select>
+    </div>
+    <div class="field"><label class="label">Remark</label><textarea class="input" id="td-remark" placeholder="Ghi chú nhanh, trạng thái, người đang chờ...">${esc(remark)}</textarea></div>
     <input type="hidden" id="td-static" value="${isStatic?1:0}"/>
     <div class="modal-actions">
       <button type="button" class="btn" data-act="close">Hủy</button>
@@ -2245,6 +2297,8 @@ function openTodoModal(id, isStatic) {
 async function saveTodo() {
   const text = $('#td-text').value.trim();
   const deadline = $('#td-deadline').value;
+  const pic = todoPicKey($('#td-pic').value);
+  const remark = $('#td-remark').value.trim();
   const isStatic = $('#td-static').value === '1';
   if (!text) { toast('Nhập nội dung', 'error'); return; }
   const { db, ref, set, update } = window.fb;
@@ -2252,13 +2306,13 @@ async function saveTodo() {
     if (isStatic) {
       const cur = DATA.checklist && DATA.checklist[editingId];
       const done = cur && typeof cur === 'object' ? !!cur.done : cur === true;
-      await set(ref(db, `checklist/${editingId}`), { text, deadline, done });
+      await set(ref(db, `checklist/${editingId}`), { text, deadline, done, pic, remark });
     } else {
-      await update(ref(db, `checklist/${editingId}`), { text, deadline });
+      await update(ref(db, `checklist/${editingId}`), { text, deadline, pic, remark });
     }
   } else {
     const id = 'c_' + Date.now();
-    await set(ref(db, `checklist/${id}`), { text, deadline, done: false, order: Date.now() });
+    await set(ref(db, `checklist/${id}`), { text, deadline, done: false, pic, remark, order: Date.now() });
   }
   toast(editingId?'Đã cập nhật':'Đã thêm');
   closeModal();
@@ -2587,7 +2641,7 @@ async function deleteDay(id) {
 // ============== EVENT DELEGATION ==============
 // Login screen buttons
 document.addEventListener('click', function(e) {
-  const btn = e.target.closest('button, [data-act], [data-edit-budget], [data-edit-fund], [data-edit-guest], [data-edit-timeline], [data-toggle-todo], [data-day], [data-tl-day], [data-flt], [data-light], a.nav-item');
+  const btn = e.target.closest('button, [data-act], [data-edit-budget], [data-edit-fund], [data-edit-guest], [data-edit-timeline], [data-toggle-todo], [data-day], [data-tl-day], [data-flt], [data-todo-pic], [data-light], a.nav-item');
   if (!btn) return;
 
   // Login screen
@@ -2665,6 +2719,7 @@ document.addEventListener('click', function(e) {
   if (btn.dataset.day !== undefined) { currentDay = btn.dataset.day; render(); return; }
   if (btn.dataset.tlDay !== undefined) { currentTimelineDay = btn.dataset.tlDay; render(); return; }
   if (btn.dataset.flt) { currentFilter = btn.dataset.flt; render(); return; }
+  if (btn.dataset.todoPic) { todoPicFilter = btn.dataset.todoPic; render(); return; }
   if (btn.dataset.light) {
     $('#lightboxImg').src = btn.dataset.light;
     $('#lightbox').classList.add('show');
