@@ -309,6 +309,7 @@ textarea.input{resize:vertical;min-height:60px}
 .gift-table{padding:0;overflow:hidden;margin-bottom:12px}
 .gt-head{padding:13px 16px;display:flex;align-items:center;gap:10px;background:linear-gradient(135deg,rgba(107,131,56,.18),rgba(74,93,32,.08));border-bottom:1px solid rgba(245,236,208,.06)}
 .gt-head .name{font-family:'Outfit',sans-serif;font-size:15px;font-weight:600;flex:1;display:flex;align-items:center;gap:6px;color:var(--cream)}
+.gt-side{font-family:inherit;font-size:10px;font-weight:500;color:var(--cream-dim);padding:2px 7px;border:1px solid var(--glass-border);border-radius:99px;white-space:nowrap}
 .gt-head .stats{font-size:11px;color:var(--cream-dim);display:flex;gap:10px;font-variant-numeric:tabular-nums;flex-wrap:wrap;justify-content:flex-end}
 .gt-head .stats .v{color:var(--gold-light);font-weight:600}
 .gt-body{padding:8px 12px 12px;display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:6px}
@@ -770,6 +771,8 @@ let DATA = { config:{}, budget:{}, fund:{}, gift_tables:{}, gift_guests:{}, cont
 let editingId = null;
 let pendingImg = '';
 let giftSearch = '';
+let giftTableSideFilter = 'all';
+let editingGiftTableId = null;
 let fbReady = false;
 let loadedKeys = {};
 
@@ -1612,7 +1615,8 @@ function renderFund() {
 }
 
 function renderGift() {
-  const tables = Object.entries(DATA.gift_tables || {});
+  const allTables = getGiftTablesSorted();
+  const tables = allTables.filter(([, t]) => matchesGiftTableSide(t));
   const guests = Object.entries(DATA.gift_guests || {});
   const isAdmin = isAdminRole();
 
@@ -1654,22 +1658,30 @@ function renderGift() {
         <input class="input" id="giftSearchInput" placeholder="Tìm khách theo tên..." value="${esc(giftSearch)}" style="padding-left:38px"/>
       </div>
 
+      <div class="filter-chips">
+        <button type="button" class="chip ${giftTableSideFilter==='all'?'active':''}" data-gift-side="all">Tất cả</button>
+        <button type="button" class="chip ${giftTableSideFilter==='bride'?'active':''}" data-gift-side="bride">Cô dâu</button>
+        <button type="button" class="chip ${giftTableSideFilter==='groom'?'active':''}" data-gift-side="groom">Chú rể</button>
+      </div>
+
       ${tables.length === 0 ? `
         <div class="glass empty">
           <svg class="ic ic-big"><use href="#i-gift"/></svg>
           <h3>Chưa có bàn tiệc</h3>
           <p>${isAdmin?'Bấm + để thêm bàn':''}</p>
         </div>
-      ` : tables.map(([tid, t]) => {
+      ` : tables.map(([tid, t], visibleIndex) => {
         const tGuests = filterGuests(tid);
         const tAmt = tGuests.reduce((a,[,g])=>a+(Number(g.amount)||0), 0);
         const tConfirm = tGuests.filter(([,g])=>g.status==='confirmed'||g.status==='gifted').length;
+        const sideLabel = t.side === 'bride' ? 'Cô dâu' : t.side === 'groom' ? 'Chú rể' : t.side === 'both' ? 'Cả hai' : '';
         return `
           <div class="glass gift-table">
             <div class="gt-head">
               <div class="name">
                 <span>${esc(t.name||'Bàn không tên')}</span>
-                ${isAdmin?`<button type="button" class="btn-mini" data-act="rename-table" data-tid="${tid}"><svg class="ic ic-sm"><use href="#i-edit"/></svg></button><button type="button" class="btn-mini danger" data-act="del-table" data-tid="${tid}"><svg class="ic ic-sm"><use href="#i-trash"/></svg></button>`:''}
+                ${sideLabel?`<span class="gt-side">${sideLabel}</span>`:''}
+                ${isAdmin?`<button type="button" class="btn-mini" data-act="move-table-up" data-tid="${tid}" ${visibleIndex===0?'disabled':''}><svg class="ic ic-sm"><use href="#i-arrow-up"/></svg></button><button type="button" class="btn-mini" data-act="move-table-down" data-tid="${tid}" ${visibleIndex===tables.length-1?'disabled':''}><svg class="ic ic-sm"><use href="#i-arrow-down"/></svg></button><button type="button" class="btn-mini" data-act="rename-table" data-tid="${tid}"><svg class="ic ic-sm"><use href="#i-edit"/></svg></button><button type="button" class="btn-mini danger" data-act="del-table" data-tid="${tid}"><svg class="ic ic-sm"><use href="#i-trash"/></svg></button>`:''}
               </div>
               <div class="stats">
                 <span>${tGuests.length} khách</span>
@@ -2136,14 +2148,18 @@ async function deleteFund(id) {
 }
 
 // ============== GIFT ==============
-function openGiftTableModal() {
+function openGiftTableModal(id) {
   if (!isAdminRole()) return;
+  editingGiftTableId = id || null;
+  const table = id ? (DATA.gift_tables[id] || {}) : {};
+  const side = ['bride', 'groom', 'both'].includes(table.side) ? table.side : (id ? 'both' : 'bride');
   showModal(`
-    <h2>Thêm bàn tiệc</h2>
-    <div class="field"><label class="label">Tên bàn *</label><input class="input" id="gt-name" placeholder="VD: Bàn họ hàng"/></div>
+    <h2>${id?'Chỉnh sửa bàn tiệc':'Thêm bàn tiệc'}</h2>
+    <div class="field"><label class="label">Tên bàn *</label><input class="input" id="gt-name" placeholder="VD: Bàn họ hàng" value="${esc(table.name||'')}"/></div>
+    <div class="field"><label class="label">Bên</label><div class="filter-chips" style="margin-bottom:0"><label class="chip ${side==='bride'?'active':''}"><input type="radio" name="gt-side" value="bride" ${side==='bride'?'checked':''} style="accent-color:var(--olive-bright)"/> Cô dâu</label><label class="chip ${side==='groom'?'active':''}"><input type="radio" name="gt-side" value="groom" ${side==='groom'?'checked':''} style="accent-color:var(--olive-bright)"/> Chú rể</label><label class="chip ${side==='both'?'active':''}"><input type="radio" name="gt-side" value="both" ${side==='both'?'checked':''} style="accent-color:var(--olive-bright)"/> Cả hai</label></div></div>
     <div class="modal-actions">
       <button type="button" class="btn" data-act="close">Hủy</button>
-      <button type="button" class="btn btn-primary" id="btnSaveTable">Thêm</button>
+      <button type="button" class="btn btn-primary" id="btnSaveTable">${id?'Lưu':'Thêm'}</button>
     </div>
   `);
   setTimeout(()=>$('#gt-name') && $('#gt-name').focus(), 100);
@@ -2151,19 +2167,48 @@ function openGiftTableModal() {
 async function saveGiftTable() {
   const name = $('#gt-name').value.trim();
   if (!name) { toast('Nhập tên bàn', 'error'); return; }
+  const side = document.querySelector('input[name="gt-side"]:checked').value;
+  if (editingGiftTableId) {
+    await window.fb.update(window.fb.ref(window.fb.db, `gift_tables/${editingGiftTableId}`), { name, side });
+    toast('Đã cập nhật bàn');
+    closeModal();
+    return;
+  }
+  const existing = getGiftTablesSorted();
+  const minOrder = existing.length ? Math.min(...existing.map(([, t], index) => Number.isFinite(Number(t.order)) ? Number(t.order) : index)) : 0;
   const { db, ref, set, push } = window.fb;
   const r = push(ref(db, 'gift_tables'));
-  await set(r, { name, ts: Date.now() });
+  await set(r, { name, side, order: existing.length ? minOrder - 1 : 0, ts: Date.now() });
   toast('Đã thêm bàn');
   closeModal();
 }
+function getGiftTablesSorted() {
+  return Object.entries(DATA.gift_tables || {}).sort((a, b) => {
+    const aOrder = Number.isFinite(Number(a[1].order)) ? Number(a[1].order) : 0;
+    const bOrder = Number.isFinite(Number(b[1].order)) ? Number(b[1].order) : 0;
+    return aOrder - bOrder;
+  });
+}
+function matchesGiftTableSide(table) {
+  return giftTableSideFilter === 'all' || table.side === giftTableSideFilter || table.side === 'both';
+}
+async function moveGiftTable(id, dir) {
+  const tables = getGiftTablesSorted();
+  const visibleIds = tables
+    .filter(([, t]) => matchesGiftTableSide(t))
+    .map(([tid]) => tid);
+  const visibleIndex = visibleIds.indexOf(id);
+  const swapId = visibleIds[visibleIndex + dir];
+  if (!swapId) return;
+  const from = tables.findIndex(([tid]) => tid === id);
+  const to = tables.findIndex(([tid]) => tid === swapId);
+  [tables[from], tables[to]] = [tables[to], tables[from]];
+  const changes = {};
+  tables.forEach(([tid], index) => { changes[`gift_tables/${tid}/order`] = index; });
+  await window.fb.update(window.fb.ref(window.fb.db), changes);
+}
 async function renameTable(id) {
-  const cur = (DATA.gift_tables[id] && DATA.gift_tables[id].name) || '';
-  const name = prompt('Tên bàn mới:', cur);
-  if (name && name.trim()) {
-    await window.fb.update(window.fb.ref(window.fb.db, `gift_tables/${id}`), { name: name.trim() });
-    toast('Đã đổi tên');
-  }
+  openGiftTableModal(id);
 }
 async function deleteTable(id) {
   if (!confirm('Xoá bàn này (và tất cả khách trong bàn)?')) return;
@@ -2690,6 +2735,8 @@ document.addEventListener('click', function(e) {
   if (act === 'tl-day-mgr') { openTimelineDayManager(); return; }
   if (act === 'rename-table') { renameTable(btn.dataset.tid); return; }
   if (act === 'del-table') { deleteTable(btn.dataset.tid); return; }
+  if (act === 'move-table-up') { moveGiftTable(btn.dataset.tid, -1); return; }
+  if (act === 'move-table-down') { moveGiftTable(btn.dataset.tid, 1); return; }
   if (act === 'add-guest') { openGuestModal(null, btn.dataset.tid); return; }
   if (act === 'edit-todo') { openTodoModal(btn.dataset.id, btn.dataset.static === '1'); return; }
   if (act === 'del-todo') { deleteTodo(btn.dataset.id, btn.dataset.static === '1'); return; }
@@ -2719,6 +2766,7 @@ document.addEventListener('click', function(e) {
   if (btn.dataset.day !== undefined) { currentDay = btn.dataset.day; render(); return; }
   if (btn.dataset.tlDay !== undefined) { currentTimelineDay = btn.dataset.tlDay; render(); return; }
   if (btn.dataset.flt) { currentFilter = btn.dataset.flt; render(); return; }
+  if (btn.dataset.giftSide !== undefined) { giftTableSideFilter = btn.dataset.giftSide; render(); return; }
   if (btn.dataset.todoPic) { todoPicFilter = btn.dataset.todoPic; render(); return; }
   if (btn.dataset.light) {
     $('#lightboxImg').src = btn.dataset.light;
@@ -2751,6 +2799,9 @@ document.addEventListener('change', function(e) {
   if (e.target.id === 'expenseSortInput') {
     expenseSort = e.target.value;
     render();
+  }
+  if (e.target.name === 'gt-side') {
+    document.querySelectorAll('input[name="gt-side"]').forEach(input => input.closest('label').classList.toggle('active', input.checked));
   }
   if (e.target.classList && e.target.classList.contains('tl-day-mgr-date')) {
     updateTimelineDay(e.target.dataset.id, { date: e.target.value });
