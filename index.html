@@ -106,6 +106,7 @@ textarea.input{resize:vertical;min-height:60px}
 .sidebar-head .sub{font-size:8px;letter-spacing:.25em;color:var(--cream-faint);margin-top:3px;text-transform:uppercase}
 .sidebar-countdown{padding:14px;text-align:center}
 .sidebar-countdown .days{font-family:'Outfit',sans-serif;font-size:28px;font-weight:600;line-height:1;letter-spacing:-.5px}
+.sidebar-countdown .days.countdown-married{font-family:'Cormorant Garamond',serif;font-size:25px;font-style:italic;letter-spacing:.01em}
 .sidebar-countdown .label-c{font-size:9px;letter-spacing:.25em;color:var(--cream-dim);margin-top:4px;text-transform:uppercase}
 .sidebar-countdown .date{font-family:'Outfit',sans-serif;font-size:12px;color:var(--gold-light);margin-top:8px;padding-top:8px;border-top:1px solid rgba(245,236,208,.06);font-weight:500}
 .nav{display:flex;flex-direction:column;gap:4px;flex:0}
@@ -480,6 +481,7 @@ textarea.input{resize:vertical;min-height:60px}
   .mobile-head .titles .t2{font-family:'Outfit',sans-serif;font-size:10px;color:var(--cream-faint);margin-top:1px;font-weight:500}
   .mobile-head .cd{text-align:right;padding-left:4px;flex-shrink:0}
   .mobile-head .cd .n{font-family:'Outfit',sans-serif;font-size:17px;font-weight:600;line-height:1;color:var(--gold-light)}
+  .mobile-head .cd .n.countdown-married{font-size:12px;letter-spacing:.02em;white-space:nowrap}
   .mobile-head .cd .l{font-size:8px;letter-spacing:.25em;color:var(--cream-faint);text-transform:uppercase;margin-top:1px}
   .main{width:100%;padding:14px;padding-bottom:calc(102px + var(--safe-bot));padding-top:14px;min-height:auto}
   .topbar{display:none}
@@ -655,7 +657,7 @@ textarea.input{resize:vertical;min-height:60px}
     </div>
     <div class="glass sidebar-countdown">
       <div class="days gradient-cream num" id="sidebarDays">—</div>
-      <div class="label-c">ngày còn lại</div>
+      <div class="label-c" id="sidebarCountdownLabel">ngày còn lại</div>
       <div class="date" id="sidebarDate">— · — · —</div>
     </div>
     <nav class="nav">
@@ -685,7 +687,7 @@ textarea.input{resize:vertical;min-height:60px}
     </div>
     <div class="cd">
       <div class="n num" id="mobileDays">—</div>
-      <div class="l">ngày</div>
+      <div class="l" id="mobileCountdownLabel">ngày</div>
     </div>
     <button type="button" class="btn btn-ghost btn-icon hidden" id="btnLogoutMobileHead" title="Thoát"><svg class="ic ic-md"><use href="#i-logout"/></svg></button>
   </div>
@@ -882,6 +884,31 @@ function daysTo(iso) {
   if (!iso) return 0;
   return Math.max(0, Math.ceil((new Date(iso+'T00:00:00') - new Date()) / 86400000));
 }
+function weddingCountdownStatus(iso, now = new Date()) {
+  if (!iso) return { married: false, days: 0 };
+  const [year, month, day] = iso.split('-').map(Number);
+  const weddingDay = new Date(year, month - 1, day);
+  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  const dayDifference = Math.round((weddingDay - today) / 86400000);
+  if (dayDifference > 0) return { married: false, days: dayDifference };
+
+  let years = today.getFullYear() - year;
+  let anniversary = new Date(year + years, month - 1, day);
+  if (anniversary > today) {
+    years--;
+    anniversary = new Date(year + years, month - 1, day);
+  }
+  return {
+    married: true,
+    years,
+    days: Math.round((today - anniversary) / 86400000)
+  };
+}
+function marriedDurationLabel(countdown) {
+  return countdown.years > 0
+    ? `${countdown.years} năm ${countdown.days} ngày`
+    : `${countdown.days} ngày`;
+}
 function relativeDeadline(iso) {
   if (!iso) return null;
   const d = new Date(iso+'T00:00:00');
@@ -1028,15 +1055,25 @@ function updateHeader() {
   const nm = (DATA.config && DATA.config.wedding && DATA.config.wedding.name) || 'Khanh & Tú';
   const parts = nm.split(/\s*[&❦]\s*/);
   const nmHtml = parts.length===2 ? `${esc(parts[0])} <span class="sep">❦</span> ${esc(parts[1])}` : esc(nm);
-  const days = daysTo(wd);
+  const countdown = weddingCountdownStatus(wd);
+  const days = countdown.days;
   const short = fmtDateShort(wd);
+  const marriedDuration = marriedDurationLabel(countdown);
+  const sidebarTitle = countdown.married ? 'Đã kết hôn' : days;
+  const countdownLabel = countdown.married ? marriedDuration : 'ngày còn lại';
+  const mobileTitle = countdown.married ? 'Đã kết hôn' : days;
+  const mobileLabel = countdown.married ? marriedDuration : 'ngày';
   $('#sideName').innerHTML = nmHtml;
-  $('#sidebarDays').textContent = days;
+  $('#sidebarDays').textContent = sidebarTitle;
+  $('#sidebarDays').classList.toggle('countdown-married', countdown.married);
+  $('#sidebarCountdownLabel').textContent = countdownLabel;
   $('#sidebarDate').textContent = short;
   $('#mobileName').innerHTML = nmHtml;
   $('#mobileDate').textContent = short;
-  $('#mobileDays').textContent = days;
-  $('#loginDateLine').innerHTML = `${short} <span class="cd">${days} ngày</span>`;
+  $('#mobileDays').textContent = mobileTitle;
+  $('#mobileDays').classList.toggle('countdown-married', countdown.married);
+  $('#mobileCountdownLabel').textContent = mobileLabel;
+  $('#loginDateLine').innerHTML = `${short} <span class="cd">${countdown.married ? `Đã kết hôn · ${marriedDuration}` : `${days} ngày`}</span>`;
 }
 
 // ============== LOGIN ==============
