@@ -336,13 +336,18 @@ textarea.input{resize:vertical;min-height:60px}
 .gift-columns{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
 .gift-column{padding:0;overflow:hidden}
 .gift-column-head{padding:12px 16px;font-family:'Outfit',sans-serif;font-size:16px;font-weight:600;color:var(--cream);background:linear-gradient(135deg,rgba(107,131,56,.18),rgba(74,93,32,.08));border-bottom:1px solid rgba(245,236,208,.06)}
-.gift-relation{padding:10px 12px 0}
+.gift-relation{padding:10px 12px 0;margin:0 8px;border-top:1px solid rgba(245,236,208,.07)}
+.gift-relation:first-of-type{border-top:none}
 .gift-relation:last-child{padding-bottom:12px}
-.gift-relation-title{font-size:10px;color:var(--cream-dim);font-weight:600;letter-spacing:.08em;text-transform:uppercase;margin:2px 3px 6px}
+.gift-relation-title{font-size:10px;color:var(--olive-glow);font-weight:700;letter-spacing:.09em;text-transform:uppercase;margin:2px 0 7px;padding:5px 8px;background:rgba(107,131,56,.12);border:1px solid rgba(168,184,90,.14);border-radius:7px;display:flex;align-items:center;justify-content:space-between}
+.gift-relation-count{font-size:9px;color:var(--cream-dim);font-weight:500;letter-spacing:0}
 .gift-relation .gift-entry{margin-bottom:6px}
 .gift-unclassified{margin-top:12px}
 .gift-quick-fields{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
 .gift-quick-fields .field{min-width:0}
+.gift-column-total,.gift-shared-total{padding:11px 14px;border-top:1px solid rgba(245,236,208,.1);background:rgba(107,131,56,.08);font-size:11px;color:var(--cream-dim);line-height:1.5}
+.gift-column-total strong,.gift-shared-total strong{display:block;color:var(--cream);font-family:'Outfit',sans-serif;font-size:13px;margin-bottom:2px}
+.gift-shared-total{margin-top:12px;border:1px solid rgba(168,184,90,.18);border-radius:var(--r-lg);background:linear-gradient(135deg,rgba(107,131,56,.16),rgba(74,93,32,.07))}
 
 /* Todo */
 .todo-progress{padding:18px 22px;margin-bottom:12px}
@@ -762,8 +767,8 @@ const TODO_PICS = {
 };
 const COLORS = ['#8fb84a','#c9a961','#a8b85a','#7a9a8e','#d4a942','#c96b5a','#6b8338','#e6c989'];
 const GIFT_RELATIONSHIPS = [
-  ['family', 'Gia đình'], ['friends', 'Bạn bè'], ['secondary_school', 'Bạn cấp 2'],
-  ['high_school', 'Bạn cấp 3'], ['university', 'Đại học'], ['colleagues', 'Đồng nghiệp'], ['other', 'Khác']
+  ['family', 'Gia đình'], ['relatives', 'Họ hàng'], ['friends', 'Bạn bè'],
+  ['colleagues', 'Đồng nghiệp'], ['family_friends', 'Bạn bè gia đình'], ['other', 'Khác']
 ];
 const DATA_KEYS = ['config','budget','fund','gift_tables','gift_guests','contacts','checklist','timeline','timeline_days'];
 const EXPENSE_STATUS = {
@@ -811,7 +816,8 @@ let giftRelationshipFilter = 'all';
 let giftAssignmentFilter = 'all';
 let giftTypeFilter = 'all';
 let giftAttendanceFilter = 'all';
-let giftThankedFilter = 'all';
+let giftReceivedFilter = 'all';
+let lastGiftEntryDefaults = null;
 let fbReady = false;
 let loadedKeys = {};
 
@@ -1772,9 +1778,9 @@ function giftSideLabel(side) {
 function giftRelationshipKey(g) {
   if (GIFT_RELATIONSHIPS.some(([id]) => id === (g && g.relationship))) return g.relationship;
   const legacy = {
-    bride_family:'family', groom_family:'family', relatives:'family', mutual_friends:'friends',
-    groom_friends:'friends', bride_friends:'friends', secondary_school:'secondary_school',
-    high_school:'high_school', university:'university', colleagues:'colleagues'
+    bride_family:'family', groom_family:'family', relatives:'relatives', mutual_friends:'family_friends',
+    groom_friends:'friends', bride_friends:'friends', secondary_school:'friends', high_school:'friends',
+    university:'friends', colleagues:'colleagues'
   };
   return legacy[g && g.group] || 'other';
 }
@@ -1795,12 +1801,41 @@ function giftAttendanceLabel(attendance) {
 function giftEntryDetail(g) {
   return [g.giftType, g.goldNote, g.giftNote].filter(Boolean).join(' · ');
 }
+function giftCurrency(g) {
+  return g && g.currency === 'USD' ? 'USD' : 'VND';
+}
+function giftMoneyText(amount, currency = 'VND') {
+  if (!(Number(amount) > 0)) return '';
+  const value = Number(amount).toLocaleString('vi-VN', { maximumFractionDigits:2 });
+  return currency === 'USD' ? `${value} USD` : `${value} đ`;
+}
 function giftEntryValue(g) {
   const values = [];
-  if (Number(g.amount) > 0) values.push(Number(g.amount).toLocaleString('vi-VN') + ' đ');
+  if (Number(g.amount) > 0) values.push(giftMoneyText(g.amount, giftCurrency(g)));
   if (Number(g.goldTael) > 0) values.push(Number(g.goldTael).toLocaleString('vi-VN', { maximumFractionDigits:2 }) + ' chỉ vàng');
   if (g.giftNote && !Number(g.amount) && !Number(g.goldTael)) values.push('Quà hiện vật');
   return values.join(' · ');
+}
+function hasGiftContribution(g) {
+  return !!(g && (g.status === 'gifted' || Number(g.amount) > 0 || Number(g.goldTael) > 0 || g.giftNote || ['Tiền mặt', 'Chuyển khoản', 'Vàng', 'Hiện vật'].includes(g.giftType)));
+}
+function summarizeGiftEntries(entries) {
+  return entries.reduce((summary, [, g]) => {
+    if (giftCurrency(g) === 'USD') summary.usd += Number(g.amount) || 0;
+    else summary.vnd += Number(g.amount) || 0;
+    summary.gold += Number(g.goldTael) || 0;
+    if (g.giftType === 'Hiện vật' || g.giftNote) summary.gifts += 1;
+    return summary;
+  }, { vnd:0, usd:0, gold:0, gifts:0 });
+}
+function giftSummaryText(entries) {
+  const summary = summarizeGiftEntries(entries);
+  const values = [];
+  if (summary.vnd) values.push(giftMoneyText(summary.vnd, 'VND'));
+  if (summary.usd) values.push(giftMoneyText(summary.usd, 'USD'));
+  if (summary.gold) values.push(`${Number(summary.gold).toLocaleString('vi-VN', { maximumFractionDigits:2 })} chỉ vàng`);
+  if (summary.gifts) values.push(`${summary.gifts} quà`);
+  return values.join(' · ') || 'Chưa có mừng';
 }
 function hasGiftEntryType(g, type) {
   if (type === 'Vàng') return g.giftType === 'Vàng' || Number(g.goldTael) > 0;
@@ -1825,8 +1860,8 @@ function getFilteredGiftEntries() {
     if (giftAssignmentFilter === 'unassigned' && g.tableId) return false;
     if (giftTypeFilter !== 'all' && !hasGiftEntryType(g, giftTypeFilter)) return false;
     if (giftAttendanceFilter !== 'all' && (g.attendance || 'unknown') !== giftAttendanceFilter) return false;
-    if (giftThankedFilter === 'thanked' && !g.thanked) return false;
-    if (giftThankedFilter === 'not_thanked' && g.thanked) return false;
+    if (giftReceivedFilter === 'received' && !hasGiftContribution(g)) return false;
+    if (giftReceivedFilter === 'not_received' && hasGiftContribution(g)) return false;
     return true;
   }).sort((a, b) => {
     const aCreated = Number(a[1].createdAt) || 0;
@@ -1842,7 +1877,7 @@ function renderGiftEntry(gid, g, isAdmin) {
   return `
     <div class="gift-entry" data-edit-guest="${gid}" style="cursor:${isAdmin?'pointer':'default'}">
       <div class="guest-dot ${g.status==='gifted'?'gifted':g.status==='confirmed'?'confirmed':''}"></div>
-      <div class="gift-entry-body"><div class="gift-entry-name">${esc(g.name || 'Chưa có tên')}</div><div class="gift-entry-meta">${side==='both'?'<span class="gift-entry-tag">Cả hai</span>':''}<span class="gift-entry-tag">${esc(giftTableName(g))}</span><span class="gift-entry-tag">${esc(giftAttendanceLabel(g.attendance))}</span>${giftEntryDetail(g)?`<span>${esc(giftEntryDetail(g))}</span>`:''}${g.thanked?'<span>Đã cảm ơn</span>':''}</div></div>
+      <div class="gift-entry-body"><div class="gift-entry-name">${esc(g.name || 'Chưa có tên')}</div><div class="gift-entry-meta">${side==='both'?'<span class="gift-entry-tag">Cả hai</span>':''}<span class="gift-entry-tag">${esc(giftTableName(g))}</span><span class="gift-entry-tag">${esc(giftAttendanceLabel(g.attendance))}</span>${giftEntryDetail(g)?`<span>${esc(giftEntryDetail(g))}</span>`:''}</div></div>
       ${giftEntryValue(g)?`<div class="gift-entry-value">${esc(giftEntryValue(g))}</div>`:''}
     </div>`;
 }
@@ -1860,29 +1895,32 @@ function renderGiftRelationGroups(entries, isAdmin) {
   ];
   return orderedKeys.map(key => {
     const label = key.startsWith('other:') ? key.slice(6) : (GIFT_RELATIONSHIPS.find(([id]) => id === key) || ['', 'Khác'])[1];
-    return `<div class="gift-relation"><div class="gift-relation-title">${esc(label)}</div>${buckets[key].map(([gid, g]) => renderGiftEntry(gid, g, isAdmin)).join('')}</div>`;
+    return `<div class="gift-relation"><div class="gift-relation-title"><span>${esc(label)}</span><span class="gift-relation-count">${buckets[key].length}</span></div>${buckets[key].map(([gid, g]) => renderGiftEntry(gid, g, isAdmin)).join('')}</div>`;
   }).join('');
 }
-function renderGiftColumn(title, entries, isAdmin) {
-  return `<div class="glass gift-column"><div class="gift-column-head">${title}</div>${entries.length ? renderGiftRelationGroups(entries, isAdmin) : '<div style="padding:18px 16px;color:var(--cream-faint);font-size:12px">Chưa có khoản mừng</div>'}</div>`;
+function renderGiftColumn(title, entries, ownEntries, isAdmin) {
+  return `<div class="glass gift-column"><div class="gift-column-head">${title}</div>${entries.length ? renderGiftRelationGroups(entries, isAdmin) : '<div style="padding:18px 16px;color:var(--cream-faint);font-size:12px">Chưa có khoản mừng</div>'}<div class="gift-column-total"><strong>Tổng riêng ${title}</strong>${esc(giftSummaryText(ownEntries))}</div></div>`;
 }
 function renderGiftList() {
   const entries = Object.entries(DATA.gift_guests || {});
   const filtered = getFilteredGiftEntries();
-  const totalAmount = entries.reduce((sum, [, g]) => sum + (Number(g.amount) || 0), 0);
-  const totalGold = entries.reduce((sum, [, g]) => sum + (Number(g.goldTael) || 0), 0);
-  const giftCount = entries.filter(([, g]) => g.giftType === 'Hiện vật' || g.giftNote).length;
+  const allSummary = summarizeGiftEntries(entries);
+  const totalGold = allSummary.gold;
+  const giftCount = allSummary.gifts;
   const unassignedCount = entries.filter(([, g]) => !g.tableId).length;
   const relationshipOptions = GIFT_RELATIONSHIPS.map(([id, label]) => `<option value="${id}" ${id===giftRelationshipFilter?'selected':''}>${label}</option>`).join('');
   const isAdmin = isAdminRole();
   const groomEntries = filtered.filter(([, g]) => ['groom', 'both'].includes(giftEntrySide(g)));
   const brideEntries = filtered.filter(([, g]) => ['bride', 'both'].includes(giftEntrySide(g)));
+  const groomOwnEntries = filtered.filter(([, g]) => giftEntrySide(g) === 'groom');
+  const brideOwnEntries = filtered.filter(([, g]) => giftEntrySide(g) === 'bride');
+  const sharedEntries = filtered.filter(([, g]) => giftEntrySide(g) === 'both');
   const unclassifiedEntries = filtered.filter(([, g]) => giftEntrySide(g) === 'unknown');
   return `
     <div class="page">
       ${renderGiftTabs()}
       <div class="stats-grid">
-        <div class="glass stat"><div class="stat-head"><svg class="ic ic-sm"><use href="#i-coin"/></svg><span class="stat-label">Tổng tiền</span></div><div class="stat-value gradient-gold">${moneyHtml(totalAmount)}</div></div>
+        <div class="glass stat"><div class="stat-head"><svg class="ic ic-sm"><use href="#i-coin"/></svg><span class="stat-label">Tổng tiền VND</span></div><div class="stat-value gradient-gold">${moneyHtml(allSummary.vnd)}</div>${allSummary.usd?`<div class="stat-sub">${giftMoneyText(allSummary.usd, 'USD')}</div>`:''}</div>
         <div class="glass stat"><div class="stat-head"><svg class="ic ic-sm"><use href="#i-gift"/></svg><span class="stat-label">Tổng vàng</span></div><div class="stat-value num">${totalGold.toLocaleString('vi-VN', { maximumFractionDigits:2 })} <span style="font-size:12px;color:var(--cream-soft)">chỉ</span></div></div>
         <div class="glass stat"><div class="stat-head"><svg class="ic ic-sm"><use href="#i-gift"/></svg><span class="stat-label">Quà hiện vật</span></div><div class="stat-value num">${giftCount}</div></div>
         <div class="glass stat"><div class="stat-head"><svg class="ic ic-sm"><use href="#i-stack"/></svg><span class="stat-label">Chưa gán bàn</span></div><div class="stat-value num text-warning">${unassignedCount}</div></div>
@@ -1898,9 +1936,9 @@ function renderGiftList() {
         <select class="input" id="giftAssignmentFilterInput"><option value="all" ${giftAssignmentFilter==='all'?'selected':''}>Tất cả bàn</option><option value="assigned" ${giftAssignmentFilter==='assigned'?'selected':''}>Đã gán bàn</option><option value="unassigned" ${giftAssignmentFilter==='unassigned'?'selected':''}>Chưa gán bàn</option></select>
         <select class="input" id="giftTypeFilterInput"><option value="all" ${giftTypeFilter==='all'?'selected':''}>Mọi hình thức</option><option value="Tiền mặt" ${giftTypeFilter==='Tiền mặt'?'selected':''}>Tiền mặt</option><option value="Chuyển khoản" ${giftTypeFilter==='Chuyển khoản'?'selected':''}>Chuyển khoản</option><option value="Vàng" ${giftTypeFilter==='Vàng'?'selected':''}>Vàng</option><option value="Hiện vật" ${giftTypeFilter==='Hiện vật'?'selected':''}>Quà hiện vật</option></select>
         <select class="input" id="giftAttendanceFilterInput"><option value="all" ${giftAttendanceFilter==='all'?'selected':''}>Mọi trạng thái dự</option><option value="unknown" ${giftAttendanceFilter==='unknown'?'selected':''}>Chưa rõ</option><option value="attending" ${giftAttendanceFilter==='attending'?'selected':''}>Có dự</option><option value="not_attending" ${giftAttendanceFilter==='not_attending'?'selected':''}>Không dự</option></select>
-        <select class="input" id="giftThankedFilterInput"><option value="all" ${giftThankedFilter==='all'?'selected':''}>Cảm ơn: tất cả</option><option value="thanked" ${giftThankedFilter==='thanked'?'selected':''}>Đã cảm ơn</option><option value="not_thanked" ${giftThankedFilter==='not_thanked'?'selected':''}>Chưa cảm ơn</option></select>
+        <select class="input" id="giftReceivedFilterInput"><option value="all" ${giftReceivedFilter==='all'?'selected':''}>Mừng: tất cả</option><option value="received" ${giftReceivedFilter==='received'?'selected':''}>Đã mừng</option><option value="not_received" ${giftReceivedFilter==='not_received'?'selected':''}>Chưa mừng</option></select>
       </div>
-      ${filtered.length === 0 ? `<div class="glass empty"><svg class="ic ic-big"><use href="#i-gift"/></svg><h3>Chưa có khoản mừng phù hợp</h3><p>${isAdmin?'Bấm Thêm để ghi nhanh tiền, vàng hoặc quà':''}</p></div>` : `<div class="gift-columns">${renderGiftColumn('Chú rể', groomEntries, isAdmin)}${renderGiftColumn('Cô dâu', brideEntries, isAdmin)}</div>${unclassifiedEntries.length ? `<div class="glass gift-unclassified"><div class="gift-column-head">Chưa phân loại</div>${renderGiftRelationGroups(unclassifiedEntries, isAdmin)}</div>` : ''}`}
+      ${filtered.length === 0 ? `<div class="glass empty"><svg class="ic ic-big"><use href="#i-gift"/></svg><h3>Chưa có khoản mừng phù hợp</h3><p>${isAdmin?'Bấm Thêm để ghi nhanh tiền, vàng hoặc quà':''}</p></div>` : `<div class="gift-columns">${renderGiftColumn('Chú rể', groomEntries, groomOwnEntries, isAdmin)}${renderGiftColumn('Cô dâu', brideEntries, brideOwnEntries, isAdmin)}</div>${sharedEntries.length ? `<div class="gift-shared-total"><strong>Tổng Cả hai / Chung</strong>${esc(giftSummaryText(sharedEntries))}</div>` : ''}${unclassifiedEntries.length ? `<div class="glass gift-unclassified"><div class="gift-column-head">Chưa phân loại</div>${renderGiftRelationGroups(unclassifiedEntries, isAdmin)}</div>` : ''}`}
     </div>
   `;
 }
@@ -2413,11 +2451,17 @@ async function deleteTable(id) {
 function openGuestModal(gid, tid) {
   if (!isAdminRole()) return;
   editingId = gid || null;
-  const g = gid ? (DATA.gift_guests[gid] || {}) : { tableId: tid || '', status: 'invited', attendance: 'unknown' };
+  const savedDefaults = !gid ? (lastGiftEntryDefaults || {}) : {};
+  const g = gid ? (DATA.gift_guests[gid] || {}) : {
+    tableId: tid || savedDefaults.tableId || '', side: savedDefaults.side || 'bride',
+    relationship: savedDefaults.relationship || 'family', customRelationship: savedDefaults.customRelationship || '',
+    status: savedDefaults.status || 'invited', attendance: savedDefaults.attendance || 'unknown',
+    giftType: savedDefaults.giftType || '', currency: savedDefaults.currency || 'VND'
+  };
   const tableId = g.tableId || tid || '';
   const storedSide = giftEntrySide(g);
   const side = storedSide === 'unknown' ? (gid ? '' : 'bride') : storedSide;
-  const relationship = gid ? giftRelationshipKey(g) : 'family';
+  const relationship = gid ? giftRelationshipKey(g) : (g.relationship || 'family');
   const customRelationship = g.customRelationship || (relationship === 'other' && g.group && g.group !== 'other' ? g.group : '');
   const tableOptions = getGiftTablesSorted().map(([id, table]) => `<option value="${esc(id)}" ${id===tableId?'selected':''}>${esc(table.name || 'Bàn không tên')}</option>`).join('');
   const relationshipOptions = GIFT_RELATIONSHIPS.map(([id, label]) => `<option value="${id}" ${id===relationship?'selected':''}>${label}</option>`).join('');
@@ -2428,7 +2472,7 @@ function openGuestModal(gid, tid) {
     <div class="field ${relationship==='other'?'':'hidden'}" id="gg-custom-relationship-field"><label class="label">Quan hệ tùy chỉnh</label><input class="input" id="gg-custom-relationship" value="${esc(customRelationship)}" placeholder="VD: Hàng xóm"/></div>
     <div class="row"><div class="field"><label class="label">Trạng thái tham dự</label><select class="input" id="gg-attendance"><option value="unknown" ${(g.attendance||'unknown')==='unknown'?'selected':''}>Chưa rõ</option><option value="attending" ${g.attendance==='attending'?'selected':''}>Có dự</option><option value="not_attending" ${g.attendance==='not_attending'?'selected':''}>Không dự</option></select></div><div class="field"><label class="label">Trạng thái hiện tại</label><select class="input" id="gg-status"><option value="invited" ${g.status==='invited'?'selected':''}>Đã mời</option><option value="confirmed" ${g.status==='confirmed'?'selected':''}>Xác nhận dự</option><option value="gifted" ${g.status==='gifted'?'selected':''}>Đã nhận mừng</option></select></div></div>
     <div class="row">
-      <div class="field"><label class="label">Tiền mừng (đ)</label><input class="input" id="gg-amount" value="${g.amount||''}" placeholder="0"/></div>
+      <div class="field"><label class="label">Tiền mừng</label><div style="display:flex;gap:6px"><input class="input" id="gg-amount" value="${g.amount||''}" placeholder="0" style="min-width:0;flex:1"/><select class="input" id="gg-currency" style="width:82px"><option value="VND" ${giftCurrency(g)==='VND'?'selected':''}>VND</option><option value="USD" ${giftCurrency(g)==='USD'?'selected':''}>USD</option></select></div></div>
       <div class="field"><label class="label">Hình thức</label>
         <select class="input" id="gg-type">
           <option value="">—</option>
@@ -2442,7 +2486,6 @@ function openGuestModal(gid, tid) {
     <div class="row"><div class="field"><label class="label">Vàng (chỉ)</label><input class="input" id="gg-gold-tael" type="number" min="0" step="0.1" value="${g.goldTael||''}" placeholder="VD: 1"/></div><div class="field"><label class="label">Ghi chú vàng</label><input class="input" id="gg-gold-note" value="${esc(g.goldNote||'')}" placeholder="VD: Vàng 9999"/></div></div>
     <div class="field"><label class="label">Quà hiện vật</label><input class="input" id="gg-gift-note" value="${esc(g.giftNote||'')}" placeholder="VD: Bộ ấm chén"/></div>
     <div class="field"><label class="label">Ghi chú</label><input class="input" id="gg-note" value="${esc(g.note||'')}" placeholder="VD: Mừng trước ngày cưới"/></div>
-    <label class="chip" style="margin-bottom:8px;width:max-content"><input type="checkbox" id="gg-thanked" ${g.thanked?'checked':''} style="accent-color:var(--olive-bright)"/> Đã cảm ơn</label>
     <div class="modal-actions">
       ${gid?`<button type="button" class="btn btn-danger" id="btnDelGuest"><svg class="ic ic-sm"><use href="#i-trash"/></svg></button>`:''}
       <button type="button" class="btn" data-act="close">Hủy</button>
@@ -2462,18 +2505,26 @@ async function saveGuest() {
     note: $('#gg-note').value.trim(),
     status: $('#gg-status').value,
     amount: parseMoney($('#gg-amount').value),
+    currency: $('#gg-currency').value,
     giftType: $('#gg-type').value,
     goldTael,
     goldNote: $('#gg-gold-note').value.trim(),
     giftNote: $('#gg-gift-note').value.trim(),
-    thanked: $('#gg-thanked').checked,
     ts: Date.now()
   };
   if (!data.name) { toast('Nhập tên khách', 'error'); return; }
   if ((data.amount > 0 || data.goldTael > 0 || data.giftNote) && data.status === 'invited') data.status = 'gifted';
   const { db, ref, set, push, update } = window.fb;
   if (editingId) await update(ref(db, `gift_guests/${editingId}`), data);
-  else { data.createdAt = Date.now(); const r = push(ref(db, 'gift_guests')); await set(r, data); }
+  else {
+    lastGiftEntryDefaults = {
+      tableId: data.tableId, side: data.side, relationship: data.relationship,
+      customRelationship: data.customRelationship, attendance: data.attendance,
+      status: data.status, giftType: data.giftType, currency: data.currency
+    };
+    data.createdAt = Date.now();
+    const r = push(ref(db, 'gift_guests')); await set(r, data);
+  }
   toast(editingId?'Đã cập nhật':'Đã thêm khách');
   closeModal();
 }
@@ -2484,10 +2535,8 @@ async function deleteGuest(id) {
   closeModal();
 }
 function exportGiftPdf() {
-  const entries = getFilteredGiftEntries();
-  const totalAmount = entries.reduce((sum, [, g]) => sum + (Number(g.amount) || 0), 0);
-  const totalGold = entries.reduce((sum, [, g]) => sum + (Number(g.goldTael) || 0), 0);
-  const giftCount = entries.filter(([, g]) => g.giftType === 'Hiện vật' || g.giftNote).length;
+  const entries = getFilteredGiftEntries().filter(([, g]) => hasGiftContribution(g));
+  const overall = summarizeGiftEntries(entries);
   const wedding = (DATA.config && DATA.config.wedding) || {};
   const weddingName = wedding.name || 'KT Wedding';
   const date = new Date().toLocaleDateString('vi-VN');
@@ -2504,10 +2553,13 @@ function exportGiftPdf() {
   };
   const groomEntries = entries.filter(([, g]) => ['groom', 'both'].includes(giftEntrySide(g)));
   const brideEntries = entries.filter(([, g]) => ['bride', 'both'].includes(giftEntrySide(g)));
+  const groomOwnEntries = entries.filter(([, g]) => giftEntrySide(g) === 'groom');
+  const brideOwnEntries = entries.filter(([, g]) => giftEntrySide(g) === 'bride');
+  const sharedEntries = entries.filter(([, g]) => giftEntrySide(g) === 'both');
   const unclassifiedEntries = entries.filter(([, g]) => giftEntrySide(g) === 'unknown');
   const pdfWindow = window.open('', '_blank');
   if (!pdfWindow) { toast('Không thể mở cửa sổ xuất PDF', 'error'); return; }
-  pdfWindow.document.write(`<!doctype html><html lang="vi"><head><meta charset="utf-8"><title>Sổ tiền mừng - ${esc(weddingName)}</title><style>@page{size:A4 landscape;margin:14mm}*{box-sizing:border-box}body{font-family:Arial,sans-serif;color:#24301e;margin:0;font-size:10px}.head{border-bottom:2px solid #6b8338;padding-bottom:12px;margin-bottom:14px}.eyebrow{font-size:9px;letter-spacing:1.6px;color:#6b8338;font-weight:bold;text-transform:uppercase}.title{font-family:Georgia,serif;font-size:27px;color:#35491e;margin:4px 0}.meta{color:#66705d;font-size:10px}.summary{display:grid;grid-template-columns:repeat(3,1fr);gap:9px;margin:12px 0 16px}.summary div{border:1px solid #d7dfc8;border-radius:8px;padding:10px;background:#f8faf4}.summary span{display:block;color:#68735e;font-size:9px;text-transform:uppercase;letter-spacing:.7px;margin-bottom:4px}.summary strong{font-size:16px;color:#35491e}.columns{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}.column{border:1px solid #d7dfc8;border-radius:8px;overflow:hidden;break-inside:avoid}.column>h2{margin:0;padding:9px 11px;background:#405827;color:#fff;font-family:Georgia,serif;font-size:16px}.relation{padding:8px 10px;border-bottom:1px solid #e1e6d9}.relation:last-child{border-bottom:none}.relation h3{font-size:9px;letter-spacing:.7px;text-transform:uppercase;color:#68735e;margin:0 0 4px}.entry{display:flex;justify-content:space-between;gap:8px;padding:4px 0;border-top:1px solid #eef1e9}.entry:first-of-type{border-top:none}.entry strong{font-size:10px}.entry small{display:block;color:#68735e;margin-top:1px}.value{font-weight:bold;color:#35491e;text-align:right;white-space:nowrap}.entry em{font-style:normal;font-size:8px;padding:1px 4px;border:1px solid #aab99b;border-radius:8px;color:#596d41}.unclassified{margin-top:12px;border:1px solid #e0cfa7;border-radius:8px;padding:9px 11px}.unclassified h2{margin:0 0 5px;font-size:12px;color:#7a622f}.empty{padding:12px;color:#68735e}.footer{margin-top:12px;color:#78816f;font-size:9px;text-align:right}@media print{body{-webkit-print-color-adjust:exact;print-color-adjust:exact}}</style></head><body><div class="head"><div class="eyebrow">Sổ lưu trữ tiền mừng</div><div class="title">${esc(weddingName)}</div><div class="meta">Danh sách đang hiển thị · Xuất ngày ${esc(date)} · ${entries.length} khoản mừng · Mục Cả hai được hiển thị ở hai cột, chỉ tính một lần trong tổng.</div></div><div class="summary"><div><span>Tổng tiền</span><strong>${totalAmount.toLocaleString('vi-VN')} đ</strong></div><div><span>Tổng vàng</span><strong>${totalGold.toLocaleString('vi-VN', { maximumFractionDigits:2 })} chỉ</strong></div><div><span>Quà hiện vật</span><strong>${giftCount} khoản</strong></div></div><div class="columns">${renderPdfColumn('Chú rể', groomEntries)}${renderPdfColumn('Cô dâu', brideEntries)}</div>${unclassifiedEntries.length ? `<section class="unclassified"><h2>Chưa phân loại</h2>${renderPdfColumn('', unclassifiedEntries)}</section>` : ''}<div class="footer">KT Wedding · Sổ tiền mừng</div></body></html>`);
+  pdfWindow.document.write(`<!doctype html><html lang="vi"><head><meta charset="utf-8"><title>Sổ tiền mừng - ${esc(weddingName)}</title><style>@page{size:A4 landscape;margin:14mm}*{box-sizing:border-box}body{font-family:Arial,sans-serif;color:#24301e;margin:0;font-size:10px}.head{border-bottom:2px solid #6b8338;padding-bottom:12px;margin-bottom:14px}.eyebrow{font-size:9px;letter-spacing:1.6px;color:#6b8338;font-weight:bold;text-transform:uppercase}.title{font-family:Georgia,serif;font-size:27px;color:#35491e;margin:4px 0}.meta{color:#66705d;font-size:10px}.summary{display:grid;grid-template-columns:repeat(4,1fr);gap:9px;margin:12px 0 16px}.summary div,.side-totals div{border:1px solid #d7dfc8;border-radius:8px;padding:10px;background:#f8faf4}.summary span{display:block;color:#68735e;font-size:9px;text-transform:uppercase;letter-spacing:.7px;margin-bottom:4px}.summary strong{font-size:16px;color:#35491e}.columns{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}.column{border:1px solid #d7dfc8;border-radius:8px;overflow:hidden;break-inside:avoid}.column>h2{margin:0;padding:9px 11px;background:#405827;color:#fff;font-family:Georgia,serif;font-size:16px}.relation{padding:8px 10px;border-bottom:1px solid #e1e6d9}.relation:last-child{border-bottom:none}.relation h3{font-size:9px;letter-spacing:.7px;text-transform:uppercase;color:#68735e;margin:0 0 4px}.entry{display:flex;justify-content:space-between;gap:8px;padding:4px 0;border-top:1px solid #eef1e9}.entry:first-of-type{border-top:none}.entry strong{font-size:10px}.entry small{display:block;color:#68735e;margin-top:1px}.value{font-weight:bold;color:#35491e;text-align:right;white-space:nowrap}.entry em{font-style:normal;font-size:8px;padding:1px 4px;border:1px solid #aab99b;border-radius:8px;color:#596d41}.side-totals{display:grid;grid-template-columns:repeat(3,1fr);gap:9px;margin-top:12px}.side-totals strong{display:block;color:#35491e;margin-bottom:3px}.unclassified{margin-top:12px;border:1px solid #e0cfa7;border-radius:8px;padding:9px 11px}.unclassified h2{margin:0 0 5px;font-size:12px;color:#7a622f}.empty{padding:12px;color:#68735e}.footer{margin-top:12px;color:#78816f;font-size:9px;text-align:right}@media print{body{-webkit-print-color-adjust:exact;print-color-adjust:exact}}</style></head><body><div class="head"><div class="eyebrow">Sổ lưu trữ tiền mừng</div><div class="title">${esc(weddingName)}</div><div class="meta">Danh sách đang hiển thị · Xuất ngày ${esc(date)} · ${entries.length} khoản đã mừng · Mục Cả hai được hiển thị ở hai cột, chỉ tính một lần trong tổng.</div></div><div class="summary"><div><span>Tổng VND</span><strong>${giftMoneyText(overall.vnd, 'VND') || '—'}</strong></div><div><span>Tổng USD</span><strong>${giftMoneyText(overall.usd, 'USD') || '—'}</strong></div><div><span>Tổng vàng</span><strong>${overall.gold ? `${Number(overall.gold).toLocaleString('vi-VN', { maximumFractionDigits:2 })} chỉ` : '—'}</strong></div><div><span>Quà hiện vật</span><strong>${overall.gifts} khoản</strong></div></div><div class="columns">${renderPdfColumn('Chú rể', groomEntries)}${renderPdfColumn('Cô dâu', brideEntries)}</div><div class="side-totals"><div><strong>Tổng riêng Chú rể</strong>${esc(giftSummaryText(groomOwnEntries))}</div><div><strong>Tổng riêng Cô dâu</strong>${esc(giftSummaryText(brideOwnEntries))}</div><div><strong>Tổng Cả hai / Chung</strong>${esc(giftSummaryText(sharedEntries))}</div></div>${unclassifiedEntries.length ? `<section class="unclassified"><h2>Chưa phân loại</h2>${renderPdfColumn('', unclassifiedEntries)}</section>` : ''}<div class="footer">KT Wedding · Sổ tiền mừng</div></body></html>`);
   pdfWindow.document.close();
   pdfWindow.focus();
   setTimeout(() => pdfWindow.print(), 300);
@@ -3046,7 +3098,7 @@ document.addEventListener('change', function(e) {
   if (e.target.id === 'giftAssignmentFilterInput') { giftAssignmentFilter = e.target.value; render(); }
   if (e.target.id === 'giftTypeFilterInput') { giftTypeFilter = e.target.value; render(); }
   if (e.target.id === 'giftAttendanceFilterInput') { giftAttendanceFilter = e.target.value; render(); }
-  if (e.target.id === 'giftThankedFilterInput') { giftThankedFilter = e.target.value; render(); }
+  if (e.target.id === 'giftReceivedFilterInput') { giftReceivedFilter = e.target.value; render(); }
   if (e.target.name === 'gt-side') {
     document.querySelectorAll('input[name="gt-side"]').forEach(input => input.closest('label').classList.toggle('active', input.checked));
   }
